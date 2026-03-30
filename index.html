@@ -825,10 +825,10 @@ function renderWorks(filter='all',subFilter='all'){
             <span>${esc(w.title)||'No Thumbnail'}</span>
           </div>
           <div class="work-play"></div>
-          <div class="work-overlay">
-            <div class="work-cat">${mainCat} · ${subLabel}</div>
-            <h3>${esc(w.title)}</h3>
-          </div>
+        </div>
+        <div class="work-card-info">
+          <div class="work-cat">${mainCat} · ${subLabel}</div>
+          <h3>${esc(w.title)}</h3>
         </div>
       </div>`;
   }).join('');
