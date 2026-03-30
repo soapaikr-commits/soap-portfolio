@@ -446,43 +446,7 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
         <h3 style="font-family:var(--font-display);font-size:18px;font-weight:600">작업물 관리</h3>
         <button class="admin-btn admin-btn-primary" onclick="showWorkForm()">+ 새 작업물</button>
       </div>
-      <!-- Work Form -->
-      <div id="workForm" style="display:none;margin-bottom:24px;padding:28px;background:var(--bg2);border:1px solid var(--bg4);border-radius:4px">
-        <h3 style="font-family:var(--font-display);font-size:18px;font-weight:600;margin-bottom:24px" id="workFormTitle">새 작업물 추가</h3>
-        <input type="hidden" id="workEditId">
-        <div class="admin-form-group">
-          <label>제목</label>
-          <input type="text" id="workTitle" placeholder="작업물 제목">
-        </div>
-        <div class="admin-form-group">
-          <label>카테고리</label>
-          <select id="workCategory">
-            <option value="" disabled>— 대분류 선택 —</option>
-            <option value="film-tvcf">Film → TVCF</option>
-            <option value="film-viral">Film → Viral Commercial</option>
-            <option value="film-interview">Film → Interview & Sketch</option>
-            <option value="ai-commercial">AI → Commercial</option>
-            <option value="ai-beauty">AI → Beauty & Fashion</option>
-            <option value="ai-animation">AI → Animation</option>
-          </select>
-        </div>
-        <div class="admin-form-group">
-          <label>영상 URL (YouTube 또는 Vimeo)</label>
-          <input type="text" id="workUrl" placeholder="https://youtube.com/watch?v=... 또는 https://vimeo.com/...">
-        </div>
-        <div class="admin-form-group">
-          <label>썸네일 URL (선택사항)</label>
-          <input type="text" id="workThumb" placeholder="https://...jpg (비워두면 자동 생성)">
-        </div>
-        <div class="admin-form-group">
-          <label>설명 (선택사항)</label>
-          <textarea id="workDesc" placeholder="작업물에 대한 간단한 설명"></textarea>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:16px">
-          <button class="admin-btn admin-btn-primary" onclick="saveWork()">저장</button>
-          <button class="admin-btn admin-btn-secondary" onclick="hideWorkForm()">취소</button>
-        </div>
-      </div>
+      <div id="newWorkForm" style="display:none"></div>
       <div id="adminWorksList"></div>
     </div>
 
@@ -1154,17 +1118,43 @@ function refreshAdminLists(){
   }
 }
 
-function showWorkForm(){
-  document.getElementById('workForm').style.display='block';
-  document.getElementById('workFormTitle').textContent='새 작업물 추가';
-  document.getElementById('workEditId').value='';
-  document.getElementById('workTitle').value='';
-  document.getElementById('workCategory').value='film-tvcf';
-  document.getElementById('workUrl').value='';
-  document.getElementById('workThumb').value='';
-  document.getElementById('workDesc').value='';
+function getWorkFormHtml(title, editId, vals){
+  const v = vals || {title:'',category:'film-tvcf',url:'',thumb:'',desc:''};
+  return `<div id="workForm" style="margin:8px 0 16px;padding:28px;background:var(--bg2);border:1px solid var(--accent);border-radius:4px;animation:fadeUp .3s var(--ease)">
+    <h3 style="font-family:var(--font-display);font-size:18px;font-weight:600;margin-bottom:24px">${title}</h3>
+    <input type="hidden" id="workEditId" value="${editId}">
+    <div class="admin-form-group"><label>제목</label><input type="text" id="workTitle" value="${esc(v.title)}" placeholder="작업물 제목"></div>
+    <div class="admin-form-group"><label>카테고리</label><select id="workCategory">
+      <option value="film-tvcf" ${v.category==='film-tvcf'?'selected':''}>Film → TVCF</option>
+      <option value="film-viral" ${v.category==='film-viral'?'selected':''}>Film → Viral Commercial</option>
+      <option value="film-interview" ${v.category==='film-interview'?'selected':''}>Film → Interview & Sketch</option>
+      <option value="ai-commercial" ${v.category==='ai-commercial'?'selected':''}>AI → Commercial</option>
+      <option value="ai-beauty" ${v.category==='ai-beauty'?'selected':''}>AI → Beauty & Fashion</option>
+      <option value="ai-animation" ${v.category==='ai-animation'?'selected':''}>AI → Animation</option>
+    </select></div>
+    <div class="admin-form-group"><label>영상 URL (YouTube 또는 Vimeo)</label><input type="text" id="workUrl" value="${esc(v.url)}" placeholder="https://youtube.com/watch?v=..."></div>
+    <div class="admin-form-group"><label>썸네일 URL (선택사항)</label><input type="text" id="workThumb" value="${esc(v.thumb||'')}" placeholder="https://...jpg (비워두면 자동 생성)"></div>
+    <div class="admin-form-group"><label>설명 (선택사항)</label><textarea id="workDesc" placeholder="작업물에 대한 간단한 설명">${esc(v.desc||'')}</textarea></div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="admin-btn admin-btn-primary" onclick="saveWork()">저장</button>
+      <button class="admin-btn admin-btn-secondary" onclick="hideWorkForm()">취소</button>
+    </div>
+  </div>`;
 }
-function hideWorkForm(){document.getElementById('workForm').style.display='none'}
+
+function showWorkForm(){
+  hideWorkForm();
+  const container = document.getElementById('newWorkForm');
+  container.innerHTML = getWorkFormHtml('새 작업물 추가', '');
+  container.style.display = 'block';
+  container.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function hideWorkForm(){
+  document.getElementById('newWorkForm').innerHTML = '';
+  document.getElementById('newWorkForm').style.display = 'none';
+  document.querySelectorAll('.inline-work-form').forEach(el=>el.remove());
+}
 
 function saveWork(){
   const data = getData();
@@ -1189,17 +1179,19 @@ function saveWork(){
   renderWorks();
   toast('작업물이 저장되었습니다');
 }
+
 function editWork(i){
+  hideWorkForm();
   const data = getData();
   const w = data.works[i];
-  document.getElementById('workForm').style.display='block';
-  document.getElementById('workFormTitle').textContent='작업물 편집';
-  document.getElementById('workEditId').value=i;
-  document.getElementById('workTitle').value=w.title;
-  document.getElementById('workCategory').value=w.category;
-  document.getElementById('workUrl').value=w.url;
-  document.getElementById('workThumb').value=w.thumb||'';
-  document.getElementById('workDesc').value=w.desc||'';
+  const items = document.querySelectorAll('#adminWorksList .admin-list-item');
+  if(items[i]){
+    const formDiv = document.createElement('div');
+    formDiv.className = 'inline-work-form';
+    formDiv.innerHTML = getWorkFormHtml('작업물 편집', i, w);
+    items[i].after(formDiv);
+    formDiv.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
 }
 // —— ORDER GRID (drag & drop) ——
 let dragIdx = null;
