@@ -312,7 +312,7 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
     <p class="hero-pre">Portfolio</p>
     <h1 class="hero-title">SOAP</h1>
     <p class="hero-name">Hyeonseong Lee</p>
-    <p class="hero-sub">Director · Cinematographer · AI Artist</p>
+    <p class="hero-sub">Cinematographer<br>·<br>AI Artist</p>
   </div>
   <div class="hero-scroll">
     <span>Scroll</span>
@@ -924,7 +924,7 @@ function applySettings(){
   if(s.heroTitle){
     document.querySelector('.hero-title').innerHTML = s.heroTitle;
   }
-  if(s.heroSub) document.querySelector('.hero-sub').textContent = s.heroSub;
+  if(s.heroSub) document.querySelector('.hero-sub').innerHTML = esc(s.heroSub).replace(/\n/g,'<br>');
   if(s.email){
     const el = document.getElementById('contactEmail');
     el.textContent = s.email;
