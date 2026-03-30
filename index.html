@@ -154,6 +154,16 @@ section{padding:120px 40px}
 .modal-info-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
 .modal-info-title{font-family:var(--font-display);font-size:22px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
 .modal-info-cat{font-family:var(--font-mono);font-size:10px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;margin-top:6px}
+/* BTS Gallery */
+.modal-bts{margin-bottom:24px}
+.modal-bts-title{font-family:var(--font-mono);font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--text-dark);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--bg4)}
+.modal-bts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.modal-bts-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px;cursor:pointer;transition:transform .3s,filter .3s;filter:brightness(.9)}
+.modal-bts-grid img:hover{transform:scale(1.03);filter:brightness(1)}
+.bts-lightbox{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.95);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;visibility:hidden;transition:all .3s}
+.bts-lightbox.active{opacity:1;visibility:visible}
+.bts-lightbox img{max-width:90%;max-height:90vh;object-fit:contain;border-radius:4px}
+
 .modal-credits{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px 40px}
 .modal-credits-title{font-family:var(--font-mono);font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--text-dark);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--bg4);grid-column:1/-1}
 .credit-item{display:flex;flex-direction:column;gap:2px}
@@ -422,6 +432,11 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
     <div class="modal-content" id="modalContent"></div>
     <div class="modal-info" id="modalInfo"></div>
   </div>
+</div>
+
+<!-- BTS Lightbox -->
+<div class="bts-lightbox" id="btsLightbox" onclick="this.classList.remove('active')">
+  <img id="btsLightboxImg" src="" alt="BTS">
 </div>
 
 <!-- Admin Overlay -->
@@ -980,6 +995,17 @@ function openVideo(url,workIdx){
     const subLabel = getSubLabel(w.category);
     const credits = parseCredits(w.desc);
 
+    let btsHtml = '';
+    if(w.bts && w.bts.length > 0){
+      btsHtml = `
+        <div class="modal-bts">
+          <div class="modal-bts-title">Behind the Scenes</div>
+          <div class="modal-bts-grid">
+            ${w.bts.map(url=>`<img src="${esc(url)}" alt="BTS" onclick="openBtsLightbox('${esc(url)}')">`).join('')}
+          </div>
+        </div>`;
+    }
+
     let creditsHtml = '';
     if(credits.length > 0){
       creditsHtml = `
@@ -999,6 +1025,7 @@ function openVideo(url,workIdx){
           <div class="modal-info-cat">${mainCat} · ${subLabel}</div>
         </div>
       </div>
+      ${btsHtml}
       ${creditsHtml}`;
   } else {
     info.innerHTML = '';
@@ -1006,6 +1033,11 @@ function openVideo(url,workIdx){
 
   modal.classList.add('active');
   document.body.style.overflow='hidden';
+}
+function openBtsLightbox(url){
+  const lb = document.getElementById('btsLightbox');
+  document.getElementById('btsLightboxImg').src = url;
+  lb.classList.add('active');
 }
 function closeModal(){
   const modal = document.getElementById('videoModal');
@@ -1018,7 +1050,7 @@ document.getElementById('videoModal').addEventListener('click',e=>{
   if(e.target===e.currentTarget) closeModal();
 });
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeModal();closeAdmin()}
+  if(e.key==='Escape'){document.getElementById('btsLightbox').classList.remove('active');closeModal();closeAdmin()}
 });
 
 // —— FILTER ——
@@ -1123,7 +1155,11 @@ function refreshAdminLists(){
 }
 
 function getWorkFormHtml(title, editId, vals){
-  const v = vals || {title:'',category:'film-tvcf',url:'',thumb:'',desc:''};
+  const v = vals || {title:'',category:'film-tvcf',url:'',thumb:'',desc:'',bts:[]};
+  const btsPreview = (v.bts||[]).map((url,i)=>`<div style="position:relative;display:inline-block">
+    <img src="${esc(url)}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;border:1px solid var(--bg4)">
+    <button onclick="removeBts(${i})" style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:10px;cursor:pointer;line-height:16px;padding:0">&times;</button>
+  </div>`).join('');
   return `<div id="workForm" style="margin:8px 0 16px;padding:28px;background:var(--bg2);border:1px solid var(--accent);border-radius:4px;animation:fadeUp .3s var(--ease)">
     <h3 style="font-family:var(--font-display);font-size:18px;font-weight:600;margin-bottom:24px">${title}</h3>
     <input type="hidden" id="workEditId" value="${editId}">
@@ -1139,12 +1175,20 @@ function getWorkFormHtml(title, editId, vals){
     <div class="admin-form-group"><label>영상 URL (YouTube 또는 Vimeo)</label><input type="text" id="workUrl" value="${esc(v.url)}" placeholder="https://youtube.com/watch?v=..."></div>
     <div class="admin-form-group"><label>썸네일 URL (선택사항)</label><input type="text" id="workThumb" value="${esc(v.thumb||'')}" placeholder="https://...jpg (비워두면 자동 생성)"></div>
     <div class="admin-form-group"><label>설명 (선택사항)</label><textarea id="workDesc" placeholder="작업물에 대한 간단한 설명">${esc(v.desc||'')}</textarea></div>
+    <div class="admin-form-group">
+      <label>Behind the Scenes (선택사항)</label>
+      <div id="btsPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">${btsPreview}</div>
+      <input type="file" id="btsFiles" accept="image/*" multiple style="display:none" onchange="uploadBts(event)">
+      <button class="admin-btn admin-btn-secondary" onclick="document.getElementById('btsFiles').click()" id="btsUploadBtn">+ 이미지 추가</button>
+      <span id="btsStatus" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dark);margin-left:8px"></span>
+    </div>
     <div style="display:flex;gap:8px;margin-top:16px">
       <button class="admin-btn admin-btn-primary" onclick="saveWork()">저장</button>
       <button class="admin-btn admin-btn-secondary" onclick="hideWorkForm()">취소</button>
     </div>
   </div>`;
 }
+let _pendingBts = [];
 
 function showWorkForm(){
   hideWorkForm();
@@ -1158,20 +1202,79 @@ function hideWorkForm(){
   document.getElementById('newWorkForm').innerHTML = '';
   document.getElementById('newWorkForm').style.display = 'none';
   document.querySelectorAll('.inline-work-form').forEach(el=>el.remove());
+  _pendingBts = [];
+}
+
+async function uploadBts(e){
+  const files = Array.from(e.target.files);
+  if(!files.length) return;
+  if(!sb){toast('Supabase 연결 필요','error');return}
+  const status = document.getElementById('btsStatus');
+  const btn = document.getElementById('btsUploadBtn');
+  btn.disabled = true;
+  for(let i=0;i<files.length;i++){
+    status.textContent = `업로드 중... (${i+1}/${files.length})`;
+    const file = files[i];
+    const name = 'bts_'+Date.now()+'_'+Math.random().toString(36).slice(2,6)+'.'+file.name.split('.').pop();
+    const {error} = await sb.storage.from('port').upload(name,file,{contentType:file.type});
+    if(error){toast('업로드 실패: '+file.name,'error');continue}
+    const {data:urlData} = sb.storage.from('port').getPublicUrl(name);
+    _pendingBts.push(urlData.publicUrl);
+  }
+  status.textContent = '';
+  btn.disabled = false;
+  // Update preview
+  const preview = document.getElementById('btsPreview');
+  if(preview){
+    const editId = document.getElementById('workEditId').value;
+    const existing = editId!=='' ? (getData().works[parseInt(editId)].bts||[]) : [];
+    const all = [...existing,..._pendingBts];
+    preview.innerHTML = all.map((url,i)=>`<div style="position:relative;display:inline-block">
+      <img src="${esc(url)}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;border:1px solid var(--bg4)">
+      <button onclick="removeBts(${i})" style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:10px;cursor:pointer;line-height:16px;padding:0">&times;</button>
+    </div>`).join('');
+  }
+  e.target.value='';
+}
+
+function removeBts(idx){
+  const editId = document.getElementById('workEditId').value;
+  const data = getData();
+  const existing = editId!=='' ? (data.works[parseInt(editId)].bts||[]) : [];
+  const all = [...existing,..._pendingBts];
+  all.splice(idx,1);
+  // Split back
+  if(editId!==''){
+    data.works[parseInt(editId)].bts = all.slice(0,Math.max(0,all.length-_pendingBts.length));
+    _pendingBts = all.slice(Math.max(0,all.length-_pendingBts.length));
+    saveData(data);
+  } else {
+    _pendingBts = all;
+  }
+  const preview = document.getElementById('btsPreview');
+  if(preview){
+    preview.innerHTML = all.map((url,i)=>`<div style="position:relative;display:inline-block">
+      <img src="${esc(url)}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;border:1px solid var(--bg4)">
+      <button onclick="removeBts(${i})" style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:10px;cursor:pointer;line-height:16px;padding:0">&times;</button>
+    </div>`).join('');
+  }
 }
 
 function saveWork(){
   const data = getData();
   const id = document.getElementById('workEditId').value;
+  const existingBts = id!=='' ? (data.works[parseInt(id)].bts||[]) : [];
   const work = {
     title: document.getElementById('workTitle').value.trim(),
     category: document.getElementById('workCategory').value,
     url: document.getElementById('workUrl').value.trim(),
     thumb: document.getElementById('workThumb').value.trim(),
-    desc: document.getElementById('workDesc').value.trim()
+    desc: document.getElementById('workDesc').value.trim(),
+    bts: [...existingBts,..._pendingBts]
   };
   if(!work.title||!work.url){toast('제목과 URL은 필수입니다','error');return}
   if(!parseVideoUrl(work.url)){toast('유효한 YouTube/Vimeo URL을 입력하세요','error');return}
+  _pendingBts = [];
   if(id!==''){
     data.works[parseInt(id)] = work;
   } else {
