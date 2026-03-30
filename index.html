@@ -3,8 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PORTFOLIO — Director / Cinematographer</title>
+<title>SOAP — Director / Cinematographer / AI Artist</title>
+<meta name="description" content="SOAP (이현성) — Director, Cinematographer, AI Artist 포트폴리오. TVCF, Viral, AI Commercial 영상 작업물.">
+<meta property="og:title" content="SOAP — Director / Cinematographer / AI Artist">
+<meta property="og:description" content="SOAP (이현성) — Director, Cinematographer, AI Artist 포트폴리오.">
+<meta property="og:image" content="favicon.svg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SOAP — Director / Cinematographer / AI Artist">
+<meta name="twitter:description" content="SOAP (이현성) — Director, Cinematographer, AI Artist 포트폴리오.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -282,7 +292,7 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
     <a href="#works">Works</a>
     <a href="#career">Career</a>
     <a href="#contact">Contact</a>
-    <button class="nav-admin" onclick="openAdmin()">Admin</button>
+    <button class="nav-admin" onclick="openAdmin()" style="display:none" id="navAdmin">Admin</button>
   </div>
   <button class="nav-burger" id="burger" onclick="toggleNav()">
     <span></span><span></span><span></span>
@@ -379,9 +389,9 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
       <a href="tel:010-0000-0000" id="contactPhoneLink">010-0000-0000</a>
     </div>
     <div class="contact-social" id="contactSocial">
-      <a href="#" target="_blank">Instagram</a>
-      <a href="#" target="_blank">Vimeo</a>
-      <a href="#" target="_blank">YouTube</a>
+      <a href="#" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="#" target="_blank" rel="noopener noreferrer">Vimeo</a>
+      <a href="#" target="_blank" rel="noopener noreferrer">YouTube</a>
     </div>
   </div>
 </section>
@@ -423,10 +433,10 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
     <button class="admin-close" onclick="closeAdmin()">&times;</button>
     <h2>관리자 패널</h2>
     <div class="admin-tabs">
-      <button class="admin-tab active" onclick="switchTab('works')">작업물</button>
-      <button class="admin-tab" onclick="switchTab('order')">정렬</button>
-      <button class="admin-tab" onclick="switchTab('careers')">경력</button>
-      <button class="admin-tab" onclick="switchTab('settings')">설정</button>
+      <button class="admin-tab active" onclick="switchTab('works',this)">작업물</button>
+      <button class="admin-tab" onclick="switchTab('order',this)">정렬</button>
+      <button class="admin-tab" onclick="switchTab('careers',this)">경력</button>
+      <button class="admin-tab" onclick="switchTab('settings',this)">설정</button>
     </div>
 
     <!-- Works Tab -->
@@ -445,7 +455,7 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
         </div>
         <div class="admin-form-group">
           <label>카테고리</label>
-          <select id="workCategory" onchange="updateSubCategory()">
+          <select id="workCategory">
             <option value="" disabled>— 대분류 선택 —</option>
             <option value="film-tvcf">Film → TVCF</option>
             <option value="film-viral">Film → Viral Commercial</option>
@@ -622,6 +632,9 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
 const STORAGE_KEY = 'portfolio_data';
 const ADMIN_PW = '3920';
 
+// —— HTML ESCAPE ——
+function esc(s){ if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') }
+
 // ▼▼▼ DEFAULT DATA — 내보내기 시 여기에 데이터가 채워집니다 ▼▼▼
 const DEFAULT_DATA = {"works":[{"title":"[NEPA] 26SS WHISTLIZER MAX - Ep.01 탄생","category":"ai-commercial","url":"https://www.youtube.com/watch?v=dKy9SEXVfz8","thumb":"","desc":"Client | NEPA\nModel | 안유진 @_yujin_an\nAgency | SM C&C\nProduction | 다이나믹콩콩, 스튜디오 서플러스\n\nAI Production | 크리에이티브 이다\nAI Supervisor | LO.OK J(박준상)\nAI Artist | SOAP(이현성), 강인한\n\nEdit | 편집인\nCG | 지인\nSound | 킹콩"},{"title":"[NEPA] 26SS WHISTLIZER MAX - Ep.02 항쟁","category":"ai-commercial","url":"https://www.youtube.com/watch?v=qi519cEy_T4","thumb":"","desc":"Client | NEPA\nModel | 안유진 @_yujin_an\nAgency | SM C&C\nProduction | 다이나믹콩콩, 스튜디오 서플러스\n\nAI Production | 크리에이티브 이다\nAI Supervisor | LO.OK J(박준상)\nAI Artist | SOAP(이현성), 강인한\n\nEdit | 편집인\nCG | 지인\nSound | 킹콩"},{"title":"[NEPA] 26SS WHISTLIZER MAX - Ep.03 도피","category":"ai-commercial","url":"https://www.youtube.com/watch?v=NaLlkteCU-w","thumb":"","desc":"Client | NEPA\nModel | 안유진 @_yujin_an\nAgency | SM C&C\nProduction | 다이나믹콩콩, 스튜디오 서플러스\n\nAI Production | 크리에이티브 이다\nAI Supervisor | LO.OK J(박준상)\nAI Artist | SOAP(이현성), 강인한\n\nEdit | 편집인\nCG | 지인\nSound | 킹콩"},{"title":"퍼스트 레이서(First racer) | AI Animation","category":"ai-animation","url":"https://www.youtube.com/watch?v=v8BYrTwQLDg","thumb":"","desc":"Director | SOAP(이현성) \nAI Artist | SOAP(이현성)"},{"title":"[MOEV| 한예슬 X 모에브 아누카틴 샴푸","category":"film-tvcf","url":"https://www.youtube.com/watch?v=eaDGZ2gl5qw","thumb":"","desc":"Client | INNOVINEKOREA\nProduction | SQUARE COLOR\n\nExecutive Producer l 김요셉\nProduction Producer | 이은협 조은봄\n\nLine Producer l 김민주 (@_mingzzo_)\nProduction Assistant | 최기철 한동혁\n\nCW | 임미류\nDirector l 박상민(@ssanggguu)\nAssistant Director l 이유나(@24fps__) / 장한욱(@wkdgksdnr)\nStoryboard l 김정운\n\nDirector of Photography l 이현성(@noisy.dp)\n1st l 이진욱\n2nd l 한지성, 김현민\n3rd l 유관열\n\nGaffer l 임만상\n1st l 임준형\n2nd l 김경엽 유동열\n3rd l 이대한 정희욱\n\nKey Grip / Techno Crane Operator l 추동우\nGrip l 김형진 김민섭 안현진 강민성\n\nArt Director l 권용옥(@oggingg)\nArt Team | 이은수 안유원\nLandscape Set DUGURU(@duguru.official)\nProject Manager | 정지욱\nDirecting team | 안광현 이현정 이기연\nSupport Team Project Owner | 이수정\nDesigner | 박은경"},{"title":"ZENU X 유지태 스태비아 단백질 커피믹스","category":"film-tvcf","url":"https://vimeo.com/1005467793?fl=tl&fe=ec","thumb":"","desc":"Client | INNOVINEKOREA\nProduction | SQUARE COLOR\nExecutive Producer l 김요셉 (squarecolor_pro)\nLine Producer l 김민재 이은협\n\nDirector l 박상민\nAssistant Director l 박용준 이유나\nProduction Assistant | 김종석 안중민 김준수 김민주\nStoryboard l 김정운\n\nD.O.P l 이현성(@noisy.dop )\n1st l 이진욱\n2nd l 김용진 한지성\n3rd l 조규정\n\nGaffer l 임만상\n1st l 임준형\n2nd l 김경엽 유진우\n3rd l 정태민 최수빈\n\nKey Grip l 홍성인\nGrip l 김형진 원희재 양명규 \nArt Director l 권용옥\nArt Team | 고은지 정미영 주성원\n\nProduction Sound l 엠아이씨 (이재석 김동표)\nMaking Film | 박현준\n\nModel l 유지태\n\nEdit | 박상민\n2D | 박여진\n3D l FIZZ(@say.fizz )\nSound Supervisor | 이원일\nCleaning / Beauty / Compositing l COMMA(@comma_cg)\n\nD.I | Square Color\nColorist | 김민재 (@squarecolor_post)\nAssistant Colorist | 김요셉\nD.I Producer | 김요셉\nD.I.T | 장현정 장한욱"},{"title":"마산 창원 HIGHENDCITY Brand Film","category":"film-tvcf","url":"https://vimeo.com/917513310?share=copy&fl=sv&fe=ci","thumb":"","desc":"마산 창원 HIGHEND City Brand Film\n\nModel l 조여정\n\nDirector l 박상민\nA.D l 박용준\n\nE.Producer l 김요셉\nL.Producer l 김종석\n\nDOP l 이현성\n\n1st l 이진욱\n2nd l 정채운\n3rd l 최정웅\n\nGaffer l 임만상\n\n1st l 김성준\n2nd l 유동열\n3rd l 박준용\n\nKey Grip l 강민성\n\n2nd l 최대신, 강민철\n\nArt Director l 권용옥\n\nD.i l 김민재(@squarecolor.di )\n\n2D l FIZZ (@say.fizz )"},{"title":"병영 센트럴스테이트 Brand Film","category":"film-tvcf","url":"https://vimeo.com/917514689","thumb":"","desc":"병영 센트럴스테이트 Brand Film\n\nModel l 한다감\n\nDirector l 박상민\nA.D l 박용준\n\nE.Producer l 김요셉\nL.Producer l 김종석\n\nDOP l 이현성\n\nGaffer l 임만상\n\nKey Grip l 홍성인\n\nArt Director l 권용옥\n\nD.i l 김민재(@squarecolor_post )"},{"title":"RODAVE Shampoo Brand Film ver.3","category":"film-viral","url":"https://vimeo.com/917512421?share=copy&fl=sv&fe=ci","thumb":"","desc":"Director l 송영규\nDOP l 이현성\nGaffer l 문광민\nD.i l 김민재\nModel l Mari"},{"title":"RODAVE Shampoo Brand Film ver.2","category":"film-viral","url":"https://vimeo.com/917507518?share=copy&fl=sv&fe=ci","thumb":"","desc":"Director l 송영규\nDOP l 이현성\nGaffer l 문광민\nD.i l 김민재\nModel l Mari"},{"title":"RODAVE Shampoo Brand Film ver.1","category":"film-viral","url":"https://vimeo.com/917497050?share=copy&fl=sv&fe=ci","thumb":"","desc":"Director l 송영규\nDOP l 이현성\nGaffer l 문광민\nD.i l 김민재\nModel l Mari"},{"title":"Peach C X 마시로 ver.1","category":"film-viral","url":"https://vimeo.com/1005465741?share=copy&fl=sv&fe=ci","thumb":"","desc":"Model l 마시로 @official.kep1er\nDirector l 송영규 @no.09_younggyu\nDOP l 이현성\nGaffer l 임만상\nD.i l 김민재(@squarecolor_post"},{"title":"BMW 코리아 미래재단 Brand Film","category":"film-viral","url":"https://www.youtube.com/watch?v=gC0qgVMrY6s","thumb":"","desc":"Client | BMW KOREA\nDirector | 송영규\nDOP | 이현성\nGaffer | 임만상"},{"title":"[SK브로드밴드] Btv 감각적인 거실완성♬ TV테리어!","category":"film-viral","url":"https://www.youtube.com/watch?v=dPHtq-IrPz0","thumb":"","desc":"Client SK브로드밴드\nProduction 크리에이티브 이다 @creative_ida_\nE.Producer 손용수\n\nDirector 이현성(SOAP) @soap.ai_\nAI artist 강인한 @k_in_han , 이현성\nMotion artist 조다리\n\nEdit Post153\n2D Post153\n사운드 음향연구소"},{"title":"[가사의 심리학]  이찬혁의 인생을 바꿔준 노래","category":"film-interview","url":"https://www.youtube.com/watch?v=23go-qK298M","thumb":"","desc":"CLIENT | 아이즈매거진\nCAST | 이찬혁\nPPRODUCTION | 스튜디오 슉\nPRODUCER | 문예은\nEDITOR | 장지은\nFILM DIRECTOR | 이현성"},{"title":"[가사의 심리학]  웨이브투어스의 인생을 바꿔준 노래","category":"film-interview","url":"https://www.youtube.com/watch?v=RDsgRa-YHkQ","thumb":"","desc":"CLIENT | 아이즈매거진\nCAST | WAVE TO EARTH\nPPRODUCTION | 스튜디오 슉\nPRODUCER | 문예은\nEDITOR | 장지은\nFILM DIRECTOR | 이현성"},{"title":"[가사의 심리학]   박재범의 인생을 바꿔준 노래","category":"film-interview","url":"https://www.youtube.com/watch?v=vJ0ROzGbV2M","thumb":"","desc":"CLIENT | 아이즈매거진\nCAST | 박재범\nPPRODUCTION | 스튜디오 슉\nPRODUCER | 문예은\nEDITOR | 장지은\nFILM DIRECTOR | 이현성"},{"title":"프리골프 사업설명회 스케치","category":"film-interview","url":"https://youtu.be/qDwoz0IRqRY","thumb":"","desc":""}],"careers":[{"year":"2020~2021","company":"TVCF / VIRAL","role":"Camerateam 3rd","desc":""},{"year":"2021~2025","company":"TVCF / VIRAL","role":"Camerateam 2nd / DOP","desc":""},{"year":"2025~","company":"CREATIVE IDA","role":"Director / AI Artist / DOP","desc":""}],"settings":{"profileImg":"profile.jpg","profileBirth":"2000.04.01","profileLocation":"Seoul","heroTitle":"SOAP","heroSub":"Cinematographer · AI Artist","email":"soap.ai.kr@gmail.com","insta":"https://www.instagram.com/track_fblues/","vimeo":"https://vimeo.com/user216073278?fl=pp&fe=sh","youtube":"https://www.youtube.com/@SOAP_KR","phone":"+82 010-4083-3920","bizName":"STUDIO SHUKK (스튜디오 슉)","bizCeo":"이현성","bizNum":"366-03-03820","bizAddr":"서울특별시 중구 충무로 13 1907호"}};
 // ▲▲▲ DEFAULT DATA ▲▲▲
@@ -641,7 +654,11 @@ window.addEventListener('load',()=>{
 
 // —— CURSOR ——
 const cursor = document.getElementById('cursor');
-document.addEventListener('mousemove',e=>{cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px'});
+let cursorX=0,cursorY=0,cursorRaf=false;
+document.addEventListener('mousemove',e=>{
+  cursorX=e.clientX;cursorY=e.clientY;
+  if(!cursorRaf){cursorRaf=true;requestAnimationFrame(()=>{cursor.style.left=cursorX+'px';cursor.style.top=cursorY+'px';cursorRaf=false})}
+});
 document.querySelectorAll('a,button,.work-card').forEach(el=>{
   el.addEventListener('mouseenter',()=>cursor.classList.add('hover'));
   el.addEventListener('mouseleave',()=>cursor.classList.remove('hover'));
@@ -650,12 +667,37 @@ document.querySelectorAll('a,button,.work-card').forEach(el=>{
 // —— NAV SCROLL ——
 window.addEventListener('scroll',()=>{
   document.getElementById('nav').classList.toggle('scrolled',window.scrollY>80);
+},{passive:true});
+
+// —— ADMIN ACCESS (로고 5연타 또는 ?admin URL 파라미터) ——
+let logoClicks=0,logoTimer=null;
+document.querySelector('.nav-logo').addEventListener('click',e=>{
+  e.preventDefault();
+  logoClicks++;
+  if(logoTimer) clearTimeout(logoTimer);
+  logoTimer = setTimeout(()=>{logoClicks=0},1500);
+  if(logoClicks>=5){logoClicks=0;openAdmin()}
 });
+if(new URLSearchParams(location.search).has('admin')){
+  document.getElementById('navAdmin').style.display='';
+}
 
 // —— MOBILE NAV ——
 function toggleNav(){
   document.getElementById('navLinks').classList.toggle('open');
 }
+// nav 링크 클릭 시 자동 닫기
+document.querySelectorAll('.nav-links a').forEach(a=>{
+  a.addEventListener('click',()=>document.getElementById('navLinks').classList.remove('open'));
+});
+// 바깥 터치 시 닫기
+document.addEventListener('click',e=>{
+  const nav = document.getElementById('navLinks');
+  const burger = document.getElementById('burger');
+  if(nav.classList.contains('open') && !nav.contains(e.target) && !burger.contains(e.target)){
+    nav.classList.remove('open');
+  }
+});
 
 // —— SCROLL REVEAL ——
 const observer = new IntersectionObserver((entries)=>{
@@ -767,27 +809,27 @@ function renderWorks(filter='all',subFilter='all'){
     const v = parseVideoUrl(w.url);
     const thumb = w.thumb || (v ? getThumbnail(v) : '');
     const thumbHtml = thumb
-      ? `<img class="thumb" src="${thumb}" alt="${w.title}" onload="if(this.naturalWidth<=120){if(this.src.includes('maxresdefault'))this.src=this.src.replace('maxresdefault','hqdefault');else if(this.src.includes('hqdefault'))this.src=this.src.replace('hqdefault','mqdefault')}" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else if(this.src.includes('hqdefault')){this.src=this.src.replace('hqdefault','mqdefault')}else{this.style.display='none';this.nextElementSibling.style.display='flex'}">`
+      ? `<img class="thumb" src="${esc(thumb)}" alt="${esc(w.title)}" onload="if(this.naturalWidth<=120){if(this.src.includes('maxresdefault'))this.src=this.src.replace('maxresdefault','hqdefault');else if(this.src.includes('hqdefault'))this.src=this.src.replace('hqdefault','mqdefault')}" onerror="if(this.src.includes('maxresdefault')){this.src=this.src.replace('maxresdefault','hqdefault')}else if(this.src.includes('hqdefault')){this.src=this.src.replace('hqdefault','mqdefault')}else{this.style.display='none';this.nextElementSibling.style.display='flex'}">`
       : '';
     const mainCat = getMainCat(w.category);
     const subLabel = getSubLabel(w.category);
     const vimeoAttr = (v && v.type==='vimeo' && !thumb) ? ` data-vimeo-id="${v.id}"` : '';
     return `
-      <div class="work-card-wrap" onclick="openVideo('${w.url}',${origIdx})">
+      <div class="work-card-wrap" onclick="openVideo('${esc(w.url)}',${origIdx})">
         <div class="work-card"${vimeoAttr}>
           ${thumbHtml}
           <div class="thumb-placeholder" style="${thumb?'display:none':''}">
-            <span>${w.title||'No Thumbnail'}</span>
+            <span>${esc(w.title)||'No Thumbnail'}</span>
           </div>
           <div class="work-play"></div>
           <div class="work-overlay">
             <div class="work-cat">${mainCat} · ${subLabel}</div>
-            <h3>${w.title}</h3>
+            <h3>${esc(w.title)}</h3>
           </div>
         </div>
         <div class="work-card-info">
           <div class="work-cat">${mainCat} · ${subLabel}</div>
-          <h3>${w.title}</h3>
+          <h3>${esc(w.title)}</h3>
         </div>
       </div>`;
   }).join('');
@@ -812,11 +854,11 @@ function renderCareer(){
   empty.style.display='none';
   grid.innerHTML = data.careers.map(c=>`
     <div class="career-item">
-      <div class="career-year">${c.year}</div>
+      <div class="career-year">${esc(c.year)}</div>
       <div class="career-details">
-        <h3>${c.company}</h3>
-        <div class="career-role">${c.role}</div>
-        <p>${c.desc||''}</p>
+        <h3>${esc(c.company)}</h3>
+        <div class="career-role">${esc(c.role)}</div>
+        <p>${esc(c.desc||'')}</p>
       </div>
     </div>`).join('');
   observeAll();
@@ -826,10 +868,25 @@ function renderCareer(){
 let heroRotateTimer = null;
 let heroCurrentIdx = 0;
 
+const isMobile = window.matchMedia('(max-width:768px)').matches;
+
 function applyHeroVideo(){
   const data = getData();
   const s = data.settings;
   const wrap = document.getElementById('heroVideoWrap');
+
+  // 모바일: 정적 썸네일만 표시 (iframe 순환 비활성화)
+  if(isMobile){
+    if(heroRotateTimer){clearInterval(heroRotateTimer);heroRotateTimer=null}
+    const v = s.heroVideo ? parseVideoUrl(s.heroVideo) : null;
+    const firstVid = v || data.works.map(w=>parseVideoUrl(w.url)).find(Boolean);
+    if(firstVid && firstVid.type==='youtube'){
+      wrap.innerHTML = `<img src="https://img.youtube.com/vi/${firstVid.id}/maxresdefault.jpg" style="width:100%;height:100%;object-fit:cover" alt="">`;
+    } else {
+      wrap.innerHTML = '';
+    }
+    return;
+  }
 
   // 직접 지정한 영상이 있으면 그거 사용
   if(s.heroVideo){
@@ -897,7 +954,7 @@ function applySettings(){
   if(s.phone){
     const phoneLink = document.getElementById('contactPhoneLink');
     phoneLink.textContent = s.phone;
-    phoneLink.href = 'tel:'+s.phone.replace(/-/g,'');
+    phoneLink.href = 'tel:'+s.phone.replace(/[-\s]/g,'');
   }
   // Business info
   if(s.bizName) document.getElementById('bizName').textContent = s.bizName;
@@ -912,7 +969,9 @@ function applySettings(){
 function parseCredits(desc){
   if(!desc || !desc.trim()) return [];
   return desc.split('\n').filter(l=>l.trim()).map(line=>{
-    const sep = line.indexOf(':');
+    const pipeIdx = line.indexOf('|');
+    const colonIdx = line.indexOf(':');
+    const sep = pipeIdx!==-1 ? pipeIdx : colonIdx;
     if(sep===-1) return {role:'',name:line.trim()};
     return {role:line.slice(0,sep).trim(), name:line.slice(sep+1).trim()};
   });
@@ -939,8 +998,8 @@ function openVideo(url,workIdx){
         <div class="modal-credits">
           <div class="modal-credits-title">Credits</div>
           ${credits.map(c => c.role
-            ? `<div class="credit-item"><span class="credit-role">${c.role}</span><span class="credit-name">${c.name}</span></div>`
-            : `<div class="credit-item"><span class="credit-name">${c.name}</span></div>`
+            ? `<div class="credit-item"><span class="credit-role">${esc(c.role)}</span><span class="credit-name">${esc(c.name)}</span></div>`
+            : `<div class="credit-item"><span class="credit-name">${esc(c.name)}</span></div>`
           ).join('')}
         </div>`;
     }
@@ -948,7 +1007,7 @@ function openVideo(url,workIdx){
     info.innerHTML = `
       <div class="modal-info-header">
         <div>
-          <div class="modal-info-title">${w.title}</div>
+          <div class="modal-info-title">${esc(w.title)}</div>
           <div class="modal-info-cat">${mainCat} · ${subLabel}</div>
         </div>
       </div>
@@ -1027,10 +1086,10 @@ function doLogin(){
     document.getElementById('adminPw').value='';
   }
 }
-function switchTab(tab){
+function switchTab(tab,btn){
   document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
-  event.target.classList.add('active');
+  btn.classList.add('active');
   document.getElementById('tab-'+tab).classList.add('active');
 }
 
@@ -1045,7 +1104,7 @@ function refreshAdminLists(){
     wl.innerHTML = data.works.map((w,i)=>`
       <div class="admin-list-item">
         <div class="admin-list-info">
-          <h4>${w.title}</h4>
+          <h4>${esc(w.title)}</h4>
           <span>${getMainCat(w.category)} · ${getSubLabel(w.category)}</span>
         </div>
         <div class="admin-list-actions">
@@ -1064,8 +1123,8 @@ function refreshAdminLists(){
     cl.innerHTML = data.careers.map((c,i)=>`
       <div class="admin-list-item">
         <div class="admin-list-info">
-          <h4>${c.company}</h4>
-          <span>${c.year} · ${c.role}</span>
+          <h4>${esc(c.company)}</h4>
+          <span>${esc(c.year)} · ${esc(c.role)}</span>
         </div>
         <div class="admin-list-actions">
           <button class="admin-btn admin-btn-secondary" onclick="editCareer(${i})">편집</button>
@@ -1415,7 +1474,7 @@ function exportData(){
   // 현재 HTML을 가져와서 DEFAULT_DATA를 교체
   fetch(location.href).then(r=>r.text()).then(html=>{
     const replaced = html.replace(
-      /const DEFAULT_DATA = .*?;/,
+      /const DEFAULT_DATA = .+;\s*$/m,
       'const DEFAULT_DATA = ' + JSON.stringify(data) + ';'
     );
     const blob = new Blob([replaced], {type:'text/html'});
