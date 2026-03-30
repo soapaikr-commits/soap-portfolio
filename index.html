@@ -676,7 +676,11 @@ document.querySelector('.nav-logo').addEventListener('click',e=>{
   if(logoTimer) clearTimeout(logoTimer);
   logoTimer = setTimeout(()=>{logoClicks=0},1500);
   if(logoClicks>=5){logoClicks=0;openAdmin()}
+  else { window.scrollTo({top:0,behavior:'smooth'}) }
 });
+// 새로고침 시 최상단
+if('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.addEventListener('beforeunload',()=>window.scrollTo(0,0));
 if(new URLSearchParams(location.search).has('admin')){
   document.getElementById('navAdmin').style.display='';
 }
