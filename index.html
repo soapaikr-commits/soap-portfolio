@@ -118,17 +118,17 @@ section{padding:120px 40px}
 .filter-btn:hover,.filter-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
 .sub-filter-bar .filter-btn{border:none;padding:6px 16px;font-size:9px;letter-spacing:2px;color:var(--text-dark)}
 .sub-filter-bar .filter-btn:hover,.sub-filter-bar .filter-btn.active{border:none;background:none;color:var(--accent)}
-.works-grid{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:24px}
-@media(max-width:768px){.works-grid{grid-template-columns:1fr}}
-.work-card-wrap{cursor:pointer;transition:transform .4s var(--ease)}
-.work-card-wrap:hover{transform:translateY(-4px)}
-.work-card{position:relative;aspect-ratio:16/9;overflow:hidden;border-radius:4px;background:var(--bg3);border:1px solid transparent;transition:border-color .4s}
-.work-card-wrap:hover .work-card{border-color:rgba(201,169,110,.2)}
+.works-grid{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:36px}
+@media(max-width:768px){.works-grid{grid-template-columns:1fr;gap:28px}}
+.work-card-wrap{cursor:pointer;transition:transform .5s var(--ease)}
+.work-card-wrap:hover{transform:translateY(-6px)}
+.work-card{position:relative;aspect-ratio:16/9;overflow:hidden;border-radius:6px;background:var(--bg3);border:1px solid transparent;transition:border-color .4s,box-shadow .5s}
+.work-card-wrap:hover .work-card{border-color:rgba(168,255,0,.15);box-shadow:0 12px 40px rgba(0,0,0,.4)}
 .work-card-info{padding:14px 4px 8px;display:flex;flex-direction:column;gap:4px}
 .work-card-info .work-cat{font-family:var(--font-mono);font-size:10px;letter-spacing:3px;color:var(--accent);text-transform:uppercase}
 .work-card-info h3{font-family:var(--font-display);font-size:17px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text)}
-.work-card .thumb{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease),filter .4s;filter:brightness(.95)}
-.work-card-wrap:hover .thumb{transform:scale(1.05);filter:brightness(.7)}
+.work-card .thumb{width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease),filter .5s;filter:brightness(.9)}
+.work-card-wrap:hover .thumb{transform:scale(1.04);filter:brightness(1.05)}
 .work-card .thumb-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--bg3),var(--bg4));font-family:var(--font-mono);font-size:11px;color:var(--text-dark);letter-spacing:2px;text-transform:uppercase}
 .work-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:28px;background:linear-gradient(to top,rgba(0,0,0,.8) 0%,transparent 60%);opacity:0;transition:opacity .4s}
 .work-card-wrap:hover .work-overlay{opacity:1}
@@ -178,10 +178,11 @@ section{padding:120px 40px}
 .profile-tags{display:flex;flex-wrap:wrap;gap:6px}
 .profile-tag{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);border:1px solid rgba(168,255,0,.2);padding:4px 10px;border-radius:2px}
 
-.career-grid{flex:1}
+.career-grid{flex:1;position:relative;padding-left:20px;border-left:2px solid rgba(168,255,0,.15)}
 .career-item{display:grid;grid-template-columns:140px 1fr;gap:32px;padding:32px 0;border-bottom:1px solid var(--bg4);position:relative;opacity:0;transform:translateY(20px);transition:all .6s var(--ease)}
+.career-item::before{content:'';position:absolute;left:-25px;top:38px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg2);box-shadow:0 0 8px rgba(168,255,0,.3)}
 .career-item.visible{opacity:1;transform:translateY(0)}
-@media(max-width:768px){.career-item{grid-template-columns:1fr;gap:8px}}
+@media(max-width:768px){.career-item{grid-template-columns:1fr;gap:8px}.career-grid{padding-left:16px}.career-item::before{left:-21px;top:34px;width:8px;height:8px}}
 .career-year{font-family:var(--font-mono);font-size:11px;letter-spacing:3px;color:var(--accent);padding-top:4px}
 .career-details h3{font-family:var(--font-display);font-size:20px;font-weight:600;letter-spacing:1px;margin-bottom:6px}
 .career-details .career-role{font-family:var(--font-display);font-size:13px;font-weight:400;letter-spacing:2px;color:var(--text-dim);margin-bottom:10px}
@@ -191,13 +192,16 @@ section{padding:120px 40px}
 #contact{background:var(--bg);text-align:center}
 .contact-email{font-family:var(--font-display);font-size:clamp(24px,4vw,48px);font-weight:700;color:var(--text);text-decoration:none;letter-spacing:2px;position:relative;transition:color .3s}
 .contact-email:hover{color:var(--accent)}
-.contact-social{display:flex;justify-content:center;gap:32px;margin-top:40px}
-.contact-social a{font-family:var(--font-mono);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dark);text-decoration:none;transition:color .3s}
-.contact-social a:hover{color:var(--accent)}
-.contact-phone{margin-top:24px;display:flex;align-items:center;justify-content:center;gap:16px}
+.contact-divider{width:40px;height:1px;background:var(--bg4);margin:32px auto}
+.contact-phone{margin-top:0;display:flex;align-items:center;justify-content:center;gap:16px}
 .contact-phone-label{font-family:var(--font-mono);font-size:11px;letter-spacing:3px;color:var(--text-dark);text-transform:uppercase}
 .contact-phone a{font-family:var(--font-display);font-size:clamp(18px,3vw,28px);font-weight:500;color:var(--text);text-decoration:none;letter-spacing:2px;transition:color .3s}
 .contact-phone a:hover{color:var(--accent)}
+.contact-social{display:flex;justify-content:center;gap:32px;margin-top:32px;padding-top:32px;border-top:1px solid var(--bg3)}
+.contact-social a{font-family:var(--font-mono);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dark);text-decoration:none;transition:color .3s;position:relative}
+.contact-social a:hover{color:var(--accent)}
+.contact-social a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--accent);transition:width .3s}
+.contact-social a:hover::after{width:100%}
 
 /* —— FOOTER —— */
 footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
@@ -385,6 +389,7 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
   </div>
   <div class="reveal">
     <a href="mailto:your@email.com" class="contact-email" id="contactEmail">your@email.com</a>
+    <div class="contact-divider"></div>
     <div class="contact-phone" id="contactPhone">
       <span class="contact-phone-label">H.P</span>
       <a href="tel:010-0000-0000" id="contactPhoneLink">010-0000-0000</a>
