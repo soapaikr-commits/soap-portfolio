@@ -268,7 +268,7 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
 .admin-close:hover{border-color:var(--accent);color:var(--accent)}
 
 /* —— ORDER GRID —— */
-.order-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.order-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .order-item{position:relative;aspect-ratio:16/9;border-radius:4px;overflow:hidden;background:var(--bg3);border:2px solid var(--bg4);cursor:grab;transition:border-color .3s,transform .2s,box-shadow .3s;user-select:none}
 .order-item:active{cursor:grabbing}
 .order-item.dragging{opacity:.4;border-color:var(--accent);transform:scale(.95)}
@@ -1123,19 +1123,33 @@ function refreshAdminLists(){
   if(data.works.length===0){
     wl.innerHTML='<p style="color:var(--text-dark);font-family:var(--font-mono);font-size:12px">등록된 작업물이 없습니다.</p>';
   } else {
-    wl.innerHTML = data.works.map((w,i)=>`
-      <div class="admin-list-item">
-        <div class="admin-list-info">
-          <h4>${esc(w.title)}</h4>
-          <span>${getMainCat(w.category)} · ${getSubLabel(w.category)}</span>
+    wl.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">${data.works.map((w,i)=>{
+      const v = parseVideoUrl(w.url);
+      const thumb = w.thumb || (v ? getThumbnail(v) : '');
+      const vimeoAttr = (!thumb && v && v.type==='vimeo') ? ` data-admin-vimeo="${v.id}"` : '';
+      return `<div class="admin-work-card" style="cursor:pointer;border-radius:4px;overflow:hidden;background:var(--bg3);border:1px solid var(--bg4);transition:border-color .3s" onclick="toggleWorkEdit(${i},this)">
+        <div style="aspect-ratio:16/9;background:var(--bg2);overflow:hidden"${vimeoAttr}>
+          ${thumb ? `<img src="${esc(thumb)}" style="width:100%;height:100%;object-fit:cover">` : `<div class="admin-thumb-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--text-dark)">${esc(w.title)}</div>`}
         </div>
-        <div class="admin-list-actions">
-          <button class="admin-btn admin-btn-secondary" onclick="moveWork(${i},-1)" ${i===0?'disabled style="opacity:.3"':''}>▲</button>
-          <button class="admin-btn admin-btn-secondary" onclick="moveWork(${i},1)" ${i===data.works.length-1?'disabled style="opacity:.3"':''}>▼</button>
-          <button class="admin-btn admin-btn-secondary" onclick="editWork(${i})">편집</button>
-          <button class="admin-btn admin-btn-danger" onclick="deleteWork(${i})">삭제</button>
+        <div style="padding:10px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(w.title)}</div>
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-dark);letter-spacing:1px">${getMainCat(w.category)} · ${getSubLabel(w.category)}</div>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('')}</div>`;
+    // 관리자 그리드 Vimeo 썸네일 비동기 로드
+    wl.querySelectorAll('[data-admin-vimeo]').forEach(el=>{
+      const id = el.dataset.adminVimeo;
+      fetch(`https://vimeo.com/api/v2/video/${id}.json`).then(r=>r.json()).then(d=>{
+        if(d[0]?.thumbnail_large){
+          const url = d[0].thumbnail_large.replace('_640','_1280');
+          const ph = el.querySelector('.admin-thumb-placeholder');
+          const img = document.createElement('img');
+          img.src=url; img.style.cssText='width:100%;height:100%;object-fit:cover';
+          if(ph) el.replaceChild(img,ph); else el.appendChild(img);
+        }
+      }).catch(()=>{});
+    });
   }
   // Careers
   const cl = document.getElementById('adminCareerList');
@@ -1175,10 +1189,18 @@ function getWorkFormHtml(title, editId, vals){
       <option value="ai-animation" ${v.category==='ai-animation'?'selected':''}>AI → Animation</option>
     </select></div>
     <div class="admin-form-group"><label>영상 URL (YouTube 또는 Vimeo)</label><input type="text" id="workUrl" value="${esc(v.url)}" placeholder="https://youtube.com/watch?v=..."></div>
-    <div class="admin-form-group"><label>썸네일 URL (선택사항)</label><input type="text" id="workThumb" value="${esc(v.thumb||'')}" placeholder="https://...jpg (비워두면 자동 생성)"></div>
+    <div class="admin-form-group"><label>썸네일 (선택사항)</label>
+      <div id="thumbPreview" style="margin-bottom:8px">${v.thumb ? `<img src="${esc(v.thumb)}" style="width:120px;aspect-ratio:16/9;object-fit:cover;border-radius:4px;border:1px solid var(--bg4)">` : ''}</div>
+      <input type="text" id="workThumb" value="${esc(v.thumb||'')}" placeholder="https://...jpg (비워두면 자동 생성)">
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input type="file" id="thumbFile" accept="image/*" style="display:none" onchange="uploadThumb(event)">
+        <button class="admin-btn admin-btn-secondary" onclick="document.getElementById('thumbFile').click()" id="thumbUploadBtn">이미지 업로드</button>
+        <span id="thumbStatus" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dark);line-height:32px"></span>
+      </div>
+    </div>
     <div class="admin-form-group"><label>설명 (선택사항)</label><textarea id="workDesc" placeholder="작업물에 대한 간단한 설명">${esc(v.desc||'')}</textarea></div>
     <div class="admin-form-group">
-      <label>Behind the Scenes (선택사항)</label>
+      <label>Process (선택사항)</label>
       <div id="btsPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">${btsPreview}</div>
       <input type="file" id="btsFiles" accept="image/*" multiple style="display:none" onchange="uploadBts(event)">
       <button class="admin-btn admin-btn-secondary" onclick="document.getElementById('btsFiles').click()" id="btsUploadBtn">+ 이미지 추가</button>
@@ -1205,6 +1227,24 @@ function hideWorkForm(){
   document.getElementById('newWorkForm').style.display = 'none';
   document.querySelectorAll('.inline-work-form').forEach(el=>el.remove());
   _pendingBts = [];
+}
+
+async function uploadThumb(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  if(!sb){toast('Supabase 연결 필요','error');return}
+  const btn = document.getElementById('thumbUploadBtn');
+  const status = document.getElementById('thumbStatus');
+  btn.disabled=true; status.textContent='업로드 중...';
+  const name = 'thumb_'+Date.now()+'_'+Math.random().toString(36).slice(2,6)+'.'+file.name.split('.').pop();
+  const {error} = await sb.storage.from('port').upload(name,file,{contentType:file.type});
+  if(error){toast('업로드 실패: '+file.name,'error');btn.disabled=false;status.textContent='';return}
+  const {data:urlData} = sb.storage.from('port').getPublicUrl(name);
+  document.getElementById('workThumb').value = urlData.publicUrl;
+  document.getElementById('thumbPreview').innerHTML = `<img src="${esc(urlData.publicUrl)}" style="width:120px;aspect-ratio:16/9;object-fit:cover;border-radius:4px;border:1px solid var(--bg4)">`;
+  btn.disabled=false; status.textContent='';
+  e.target.value='';
+  toast('썸네일이 업로드되었습니다');
 }
 
 async function uploadBts(e){
@@ -1287,6 +1327,28 @@ function saveWork(){
   refreshAdminLists();
   renderWorks();
   toast('작업물이 저장되었습니다');
+}
+
+function toggleWorkEdit(i,el){
+  const wl = document.getElementById('adminWorksList');
+  const existing = wl.querySelector('.inline-work-form');
+  if(existing && existing.dataset.idx === String(i)){
+    existing.remove();
+    return;
+  }
+  hideWorkForm();
+  const data = getData();
+  const w = data.works[i];
+  const formDiv = document.createElement('div');
+  formDiv.className = 'inline-work-form';
+  formDiv.dataset.idx = i;
+  formDiv.innerHTML = getWorkFormHtml('작업물 편집', i, w);
+  formDiv.onclick = function(e){e.stopPropagation()};
+  // 그리드 바깥, 카드가 속한 행 아래에 삽입
+  const grid = wl.querySelector('[style*="grid-template-columns"]');
+  if(grid) grid.after(formDiv);
+  else el.after(formDiv);
+  formDiv.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function editWork(i){
