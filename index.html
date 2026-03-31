@@ -7,7 +7,7 @@
 <meta name="description" content="SOAP (이현성) — Director, Cinematographer, AI Artist 포트폴리오. TVCF, Viral, AI Commercial 영상 작업물.">
 <meta property="og:title" content="SOAP — Director / Cinematographer / AI Artist">
 <meta property="og:description" content="SOAP (이현성) — Director, Cinematographer, AI Artist 포트폴리오.">
-<meta property="og:image" content="favicon.svg">
+<meta property="og:image" content="profile.jpg">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SOAP — Director / Cinematographer / AI Artist">
@@ -268,7 +268,7 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
 .admin-close:hover{border-color:var(--accent);color:var(--accent)}
 
 /* —— ORDER GRID —— */
-.order-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.order-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
 .order-item{position:relative;aspect-ratio:16/9;border-radius:4px;overflow:hidden;background:var(--bg3);border:2px solid var(--bg4);cursor:grab;transition:border-color .3s,transform .2s,box-shadow .3s;user-select:none}
 .order-item:active{cursor:grabbing}
 .order-item.dragging{opacity:.4;border-color:var(--accent);transform:scale(.95)}
@@ -436,7 +436,7 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
 
 <!-- BTS Lightbox -->
 <div class="bts-lightbox" id="btsLightbox" onclick="this.classList.remove('active')">
-  <img id="btsLightboxImg" src="" alt="Process">
+  <img id="btsLightboxImg" src="" alt="Process" onclick="event.stopPropagation()">
 </div>
 
 <!-- Admin Overlay -->
@@ -644,8 +644,7 @@ function saveData(d){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
   if(sb){
     sb.from('portfolio_data')
-      .update({ data: d, updated_at: new Date().toISOString() })
-      .eq('id', 1)
+      .upsert({ id: 1, data: d, updated_at: new Date().toISOString() })
       .then(({ error }) => {
         if(error){ console.error('Supabase save failed:', error); toast('서버 저장 실패 — 로컬에만 저장됨','error'); }
       });
@@ -753,31 +752,36 @@ function getThumbnail(v){
 }
 
 // Vimeo 썸네일 비동기 로드
+const _vimeoCache = {};
+function fetchVimeoThumb(id){
+  if(_vimeoCache[id]) return Promise.resolve(_vimeoCache[id]);
+  return fetch(`https://vimeo.com/api/v2/video/${id}.json`).then(r=>r.json()).then(d=>{
+    const url = d[0]?.thumbnail_large?.replace('_640','_1280')||'';
+    if(url) _vimeoCache[id]=url;
+    return url;
+  }).catch(()=>'');
+}
+
 function loadVimeoThumbs(){
   document.querySelectorAll('[data-vimeo-id]').forEach(card=>{
     const id = card.dataset.vimeoId;
     const img = card.querySelector('.thumb');
     const placeholder = card.querySelector('.thumb-placeholder');
-    fetch(`https://vimeo.com/api/v2/video/${id}.json`)
-      .then(r=>r.json())
-      .then(data=>{
-        if(data[0]?.thumbnail_large){
-          const url = data[0].thumbnail_large.replace('_640','_1280');
-          if(img){
-            img.src = url;
-            img.style.display='';
-            if(placeholder) placeholder.style.display='none';
-          } else {
-            const newImg = document.createElement('img');
-            newImg.className='thumb';
-            newImg.src=url;
-            newImg.alt='';
-            card.insertBefore(newImg, card.firstChild);
-            if(placeholder) placeholder.style.display='none';
-          }
+    fetchVimeoThumb(id).then(url=>{
+        if(!url) return;
+        if(img){
+          img.src = url;
+          img.style.display='';
+          if(placeholder) placeholder.style.display='none';
+        } else {
+          const newImg = document.createElement('img');
+          newImg.className='thumb';
+          newImg.src=url;
+          newImg.alt='';
+          card.insertBefore(newImg, card.firstChild);
+          if(placeholder) placeholder.style.display='none';
         }
-      })
-      .catch(()=>{});
+      });
   });
 }
 
@@ -917,7 +921,7 @@ function applyHeroVideo(){
     do { next = Math.floor(Math.random()*videos.length); } while(next===heroCurrentIdx && videos.length>1);
     heroCurrentIdx = next;
     showHeroSlide(wrap, videos);
-  }, 6000);
+  }, 15000);
 }
 
 function showHeroSlide(wrap, videos){
@@ -1003,7 +1007,7 @@ function openVideo(url,workIdx){
         <div class="modal-bts">
           <div class="modal-bts-title">Process</div>
           <div class="modal-bts-grid">
-            ${w.bts.map(url=>`<img src="${esc(url)}" alt="Process" onclick="openBtsLightbox('${esc(url)}')">`).join('')}
+            ${w.bts.map(url=>`<img src="${esc(url)}" alt="Process" onclick="event.stopPropagation();openBtsLightbox('${esc(url)}')">`).join('')}
           </div>
         </div>`;
     }
@@ -1052,7 +1056,11 @@ document.getElementById('videoModal').addEventListener('click',e=>{
   if(e.target===e.currentTarget) closeModal();
 });
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){document.getElementById('btsLightbox').classList.remove('active');closeModal();closeAdmin()}
+  if(e.key==='Escape'){
+    if(document.getElementById('btsLightbox').classList.contains('active')){document.getElementById('btsLightbox').classList.remove('active')}
+    else if(document.getElementById('videoModal').classList.contains('active')){closeModal()}
+    else if(document.getElementById('adminOverlay').classList.contains('active')){closeAdmin()}
+  }
 });
 
 // —— FILTER ——
@@ -1123,7 +1131,7 @@ function refreshAdminLists(){
   if(data.works.length===0){
     wl.innerHTML='<p style="color:var(--text-dark);font-family:var(--font-mono);font-size:12px">등록된 작업물이 없습니다.</p>';
   } else {
-    wl.innerHTML = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">${data.works.map((w,i)=>{
+    wl.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">${data.works.map((w,i)=>{
       const v = parseVideoUrl(w.url);
       const thumb = w.thumb || (v ? getThumbnail(v) : '');
       const vimeoAttr = (!thumb && v && v.type==='vimeo') ? ` data-admin-vimeo="${v.id}"` : '';
@@ -1206,9 +1214,12 @@ function getWorkFormHtml(title, editId, vals){
       <button class="admin-btn admin-btn-secondary" onclick="document.getElementById('btsFiles').click()" id="btsUploadBtn">+ 이미지 추가</button>
       <span id="btsStatus" style="font-family:var(--font-mono);font-size:10px;color:var(--text-dark);margin-left:8px"></span>
     </div>
-    <div style="display:flex;gap:8px;margin-top:16px">
-      <button class="admin-btn admin-btn-primary" onclick="saveWork()">저장</button>
-      <button class="admin-btn admin-btn-secondary" onclick="hideWorkForm()">취소</button>
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:space-between">
+      <div style="display:flex;gap:8px">
+        <button class="admin-btn admin-btn-primary" onclick="saveWork()">저장</button>
+        <button class="admin-btn admin-btn-secondary" onclick="hideWorkForm()">취소</button>
+      </div>
+      ${editId!=='' ? `<button class="admin-btn admin-btn-danger" onclick="deleteWork(${editId})">삭제</button>` : ''}
     </div>
   </div>`;
 }
@@ -1282,17 +1293,18 @@ async function uploadBts(e){
 function removeBts(idx){
   const editId = document.getElementById('workEditId').value;
   const data = getData();
-  const existing = editId!=='' ? (data.works[parseInt(editId)].bts||[]) : [];
-  const all = [...existing,..._pendingBts];
-  all.splice(idx,1);
-  // Split back
-  if(editId!==''){
-    data.works[parseInt(editId)].bts = all.slice(0,Math.max(0,all.length-_pendingBts.length));
-    _pendingBts = all.slice(Math.max(0,all.length-_pendingBts.length));
-    saveData(data);
+  const existing = editId!=='' ? [...(data.works[parseInt(editId)].bts||[])] : [];
+  const exLen = existing.length;
+  if(idx < exLen){
+    existing.splice(idx,1);
+    if(editId!==''){
+      data.works[parseInt(editId)].bts = existing;
+      saveData(data);
+    }
   } else {
-    _pendingBts = all;
+    _pendingBts.splice(idx - exLen, 1);
   }
+  const all = [...existing,..._pendingBts];
   const preview = document.getElementById('btsPreview');
   if(preview){
     preview.innerHTML = all.map((url,i)=>`<div style="position:relative;display:inline-block">
@@ -1562,20 +1574,33 @@ function deleteCareer(i){
 }
 
 // Profile Image
-function handleProfileUpload(e){
+async function handleProfileUpload(e){
   const file = e.target.files[0];
   if(!file) return;
   if(file.size > 2*1024*1024){toast('이미지는 2MB 이하만 가능합니다','error');return}
-  const reader = new FileReader();
-  reader.onload = function(ev){
+  if(sb){
+    const name = 'profile_'+Date.now()+'.'+file.name.split('.').pop();
+    const {error} = await sb.storage.from('port').upload(name,file,{contentType:file.type});
+    if(error){toast('업로드 실패','error');return}
+    const {data:urlData} = sb.storage.from('port').getPublicUrl(name);
     const data = getData();
-    data.settings.profileImg = ev.target.result;
+    data.settings.profileImg = urlData.publicUrl;
     saveData(data);
     updateProfilePreview();
     applyProfile();
     toast('프로필 이미지가 저장되었습니다');
-  };
-  reader.readAsDataURL(file);
+  } else {
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      const data = getData();
+      data.settings.profileImg = ev.target.result;
+      saveData(data);
+      updateProfilePreview();
+      applyProfile();
+      toast('프로필 이미지가 저장되었습니다');
+    };
+    reader.readAsDataURL(file);
+  }
 }
 function removeProfileImg(){
   const data = getData();
@@ -1600,6 +1625,8 @@ function applyProfile(){
   const area = document.getElementById('profileImgArea');
   if(s.profileImg){
     area.outerHTML = `<img src="${s.profileImg}" style="width:100%;height:100%;object-fit:cover" id="profileImgArea">`;
+  } else {
+    area.outerHTML = `<div class="profile-img-placeholder" id="profileImgArea">No Photo</div>`;
   }
   if(s.profileLocation) document.getElementById('profileLocation').textContent = s.profileLocation;
 }
