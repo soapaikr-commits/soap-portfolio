@@ -1115,7 +1115,6 @@ function switchTab(tab,btn){
 
 // Admin Works
 function refreshAdminLists(){
-  renderOrderGrid();
   const data = getData();
   const wl = document.getElementById('adminWorksList');
   if(data.works.length===0){
@@ -1413,128 +1412,6 @@ function editWork(i){
   }
 }
 // —— ORDER GRID (drag & drop) ——
-let dragIdx = null;
-let orderFilter = 'all';
-let orderSubFilter = 'all';
-
-function updateOrderSubFilterBar(){
-  const bar = document.getElementById('orderSubFilterBar');
-  if(orderFilter==='all'){bar.style.display='none';return}
-  const subs = orderFilter==='film'?FILM_SUBS:AI_SUBS;
-  bar.style.display='flex';
-  bar.innerHTML = `<button class="filter-btn ${orderSubFilter==='all'?'active':''}" data-osub="all">All</button>`+
-    Object.entries(subs).map(([k,v])=>`<button class="filter-btn ${orderSubFilter===k?'active':''}" data-osub="${k}">${v}</button>`).join('');
-}
-
-function getFilteredOrderIndices(){
-  const data = getData();
-  const indices = [];
-  data.works.forEach((w,i)=>{
-    if(orderFilter!=='all'){
-      if(!w.category.startsWith(orderFilter)) return;
-      if(orderSubFilter!=='all' && w.category!==orderSubFilter) return;
-    }
-    indices.push(i);
-  });
-  return indices;
-}
-
-function renderOrderGrid(){
-  const data = getData();
-  const grid = document.getElementById('orderGrid');
-  if(!grid) return;
-
-  updateOrderSubFilterBar();
-  const indices = getFilteredOrderIndices();
-
-  if(indices.length===0){
-    grid.innerHTML='<p style="color:var(--text-dark);font-family:var(--font-mono);font-size:12px">해당 카테고리에 작업물이 없습니다.</p>';
-    return;
-  }
-
-  grid.innerHTML = indices.map(i=>{
-    const w = data.works[i];
-    const v = parseVideoUrl(w.url);
-    const thumb = w.thumb || (v && v.type==='youtube' ? `https://img.youtube.com/vi/${v.id}/mqdefault.jpg` : '');
-    const mainCat = getMainCat(w.category);
-    const subLabel = getSubLabel(w.category);
-    return `<div class="order-item" draggable="true" data-idx="${i}">
-      ${thumb ? `<img src="${thumb}" alt="">` : `<div class="order-placeholder">${w.title}</div>`}
-      <div class="order-num">${i+1}</div>
-      <div class="order-label">${mainCat} · ${subLabel} — ${w.title}</div>
-    </div>`;
-  }).join('');
-
-  grid.querySelectorAll('.order-item').forEach(el=>{
-    el.addEventListener('dragstart',e=>{
-      dragIdx = parseInt(el.dataset.idx);
-      el.classList.add('dragging');
-      e.dataTransfer.effectAllowed='move';
-    });
-    el.addEventListener('dragend',()=>{
-      el.classList.remove('dragging');
-      grid.querySelectorAll('.order-item').forEach(x=>x.classList.remove('drag-over'));
-      dragIdx=null;
-    });
-    el.addEventListener('dragover',e=>{
-      e.preventDefault();
-      e.dataTransfer.dropEffect='move';
-      el.classList.add('drag-over');
-    });
-    el.addEventListener('dragleave',()=>{
-      el.classList.remove('drag-over');
-    });
-    el.addEventListener('drop',e=>{
-      e.preventDefault();
-      el.classList.remove('drag-over');
-      const dropIdx = parseInt(el.dataset.idx);
-      if(dragIdx===null || dragIdx===dropIdx) return;
-      const data = getData();
-      const [moved] = data.works.splice(dragIdx,1);
-      data.works.splice(dropIdx,0,moved);
-      saveData(data);
-      renderOrderGrid();
-      renderWorks(currentFilter, currentSubFilter);
-      toast('순서가 변경되었습니다');
-    });
-  });
-
-  // Vimeo thumbs
-  grid.querySelectorAll('.order-item').forEach(el=>{
-    const idx = parseInt(el.dataset.idx);
-    const w = data.works[idx];
-    const v = parseVideoUrl(w.url);
-    if(v && v.type==='vimeo' && !w.thumb){
-      fetch(`https://vimeo.com/api/v2/video/${v.id}.json`)
-        .then(r=>r.json())
-        .then(d=>{
-          if(d[0]?.thumbnail_large){
-            const img = document.createElement('img');
-            img.src = d[0].thumbnail_large;
-            const ph = el.querySelector('.order-placeholder');
-            if(ph){ el.replaceChild(img, ph); }
-          }
-        }).catch(()=>{});
-    }
-  });
-}
-
-// Order filter events
-document.getElementById('orderFilterBar').addEventListener('click',e=>{
-  if(!e.target.classList.contains('filter-btn')) return;
-  document.getElementById('orderFilterBar').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  e.target.classList.add('active');
-  orderFilter = e.target.dataset.ofilter;
-  orderSubFilter = 'all';
-  renderOrderGrid();
-});
-document.getElementById('orderSubFilterBar').addEventListener('click',e=>{
-  if(!e.target.classList.contains('filter-btn')) return;
-  document.getElementById('orderSubFilterBar').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  e.target.classList.add('active');
-  orderSubFilter = e.target.dataset.osub;
-  renderOrderGrid();
-});
 
 function moveWork(i,dir){
   const data = getData();
