@@ -644,7 +644,8 @@ function saveData(d){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
   if(sb){
     sb.from('portfolio_data')
-      .upsert({ id: 1, data: d, updated_at: new Date().toISOString() })
+      .update({ data: d, updated_at: new Date().toISOString() })
+      .eq('id', 1)
       .then(({ error }) => {
         if(error){ console.error('Supabase save failed:', error); toast('서버 저장 실패 — 로컬에만 저장됨','error'); }
       });
