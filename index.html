@@ -454,7 +454,6 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
     <h2>관리자 패널</h2>
     <div class="admin-tabs">
       <button class="admin-tab active" onclick="switchTab('works',this)">작업물</button>
-      <button class="admin-tab" onclick="switchTab('order',this)">정렬</button>
       <button class="admin-tab" onclick="switchTab('careers',this)">경력</button>
       <button class="admin-tab" onclick="switchTab('settings',this)">설정</button>
     </div>
@@ -462,24 +461,14 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
     <!-- Works Tab -->
     <div class="admin-section active" id="tab-works">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
-        <h3 style="font-family:var(--font-display);font-size:18px;font-weight:600">작업물 관리</h3>
+        <div>
+          <h3 style="font-family:var(--font-display);font-size:18px;font-weight:600">작업물 관리</h3>
+          <p style="font-family:var(--font-mono);font-size:9px;color:var(--text-dark);letter-spacing:1px;margin-top:4px">≡ 핸들을 드래그하여 순서 변경 · 카드 클릭하여 편집</p>
+        </div>
         <button class="admin-btn admin-btn-primary" onclick="showWorkForm()">+ 새 작업물</button>
       </div>
       <div id="newWorkForm" style="display:none"></div>
       <div id="adminWorksList"></div>
-    </div>
-
-    <!-- Order Tab -->
-    <div class="admin-section" id="tab-order">
-      <h3 style="font-family:var(--font-display);font-size:18px;font-weight:600;margin-bottom:8px">순서 정렬</h3>
-      <p style="font-family:var(--font-mono);font-size:10px;color:var(--text-dark);letter-spacing:1px;margin-bottom:20px">드래그하여 순서를 변경하세요</p>
-      <div class="filter-bar" id="orderFilterBar" style="justify-content:flex-start;margin-bottom:24px">
-        <button class="filter-btn active" data-ofilter="all">All</button>
-        <button class="filter-btn" data-ofilter="film">Film</button>
-        <button class="filter-btn" data-ofilter="ai">AI</button>
-      </div>
-      <div class="filter-bar sub-filter-bar" id="orderSubFilterBar" style="display:none;justify-content:flex-start;margin-top:-16px;margin-bottom:24px"></div>
-      <div class="order-grid" id="orderGrid"></div>
     </div>
 
     <!-- Careers Tab -->
@@ -1132,13 +1121,15 @@ function refreshAdminLists(){
   if(data.works.length===0){
     wl.innerHTML='<p style="color:var(--text-dark);font-family:var(--font-mono);font-size:12px">등록된 작업물이 없습니다.</p>';
   } else {
-    wl.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">${data.works.map((w,i)=>{
+    wl.innerHTML = `<div id="adminWorksGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">${data.works.map((w,i)=>{
       const v = parseVideoUrl(w.url);
       const thumb = w.thumb || (v ? getThumbnail(v) : '');
       const vimeoAttr = (!thumb && v && v.type==='vimeo') ? ` data-admin-vimeo="${v.id}"` : '';
-      return `<div class="admin-work-card" style="cursor:pointer;border-radius:4px;overflow:hidden;background:var(--bg3);border:1px solid var(--bg4);transition:border-color .3s;${w.hidden?'opacity:.4':''}" onclick="toggleWorkEdit(${i},this)">
+      return `<div class="admin-work-card" draggable="true" data-idx="${i}" style="cursor:pointer;border-radius:4px;overflow:hidden;background:var(--bg3);border:1px solid var(--bg4);transition:border-color .3s,opacity .3s,transform .2s;${w.hidden?'opacity:.4':''}position:relative" onclick="toggleWorkEdit(${i},this)">
+        <div style="position:absolute;top:6px;left:6px;z-index:2;cursor:grab;background:rgba(0,0,0,.6);border-radius:3px;padding:2px 6px;font-size:14px;color:var(--text-dim);line-height:1" class="drag-handle" onclick="event.stopPropagation()">≡</div>
+        ${w.hidden?'<div style="position:absolute;top:6px;right:6px;z-index:2;background:rgba(0,0,0,.6);border-radius:3px;padding:2px 6px;font-family:var(--font-mono);font-size:9px;color:var(--text-dark)">숨김</div>':''}
         <div style="aspect-ratio:16/9;background:var(--bg2);overflow:hidden"${vimeoAttr}>
-          ${thumb ? `<img src="${esc(thumb)}" style="width:100%;height:100%;object-fit:cover">` : `<div class="admin-thumb-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--text-dark)">${esc(w.title)}</div>`}
+          ${thumb ? `<img src="${esc(thumb)}" style="width:100%;height:100%;object-fit:cover;pointer-events:none">` : `<div class="admin-thumb-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--text-dark)">${esc(w.title)}</div>`}
         </div>
         <div style="padding:10px">
           <div style="font-size:13px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(w.title)}</div>
@@ -1146,6 +1137,8 @@ function refreshAdminLists(){
         </div>
       </div>`;
     }).join('')}</div>`;
+    // 드래그 정렬
+    initAdminDrag();
     // 관리자 그리드 Vimeo 썸네일 비동기 로드
     wl.querySelectorAll('[data-admin-vimeo]').forEach(el=>{
       const id = el.dataset.adminVimeo;
@@ -1343,6 +1336,45 @@ function saveWork(){
   refreshAdminLists();
   renderWorks();
   toast('작업물이 저장되었습니다');
+}
+
+let _adminDragIdx = null;
+function initAdminDrag(){
+  const grid = document.getElementById('adminWorksGrid');
+  if(!grid) return;
+  grid.querySelectorAll('.admin-work-card').forEach(card=>{
+    const handle = card.querySelector('.drag-handle');
+    handle.addEventListener('mousedown',()=>card.setAttribute('data-candrag','1'));
+    card.addEventListener('dragstart',e=>{
+      if(!card.getAttribute('data-candrag')){e.preventDefault();return}
+      _adminDragIdx = parseInt(card.dataset.idx);
+      card.style.opacity='.4';
+      e.dataTransfer.effectAllowed='move';
+    });
+    card.addEventListener('dragend',()=>{
+      card.style.opacity='';card.removeAttribute('data-candrag');
+      grid.querySelectorAll('.admin-work-card').forEach(c=>c.style.transform='');
+      _adminDragIdx=null;
+    });
+    card.addEventListener('dragover',e=>{
+      e.preventDefault();e.dataTransfer.dropEffect='move';
+      card.style.transform='scale(.95)';
+    });
+    card.addEventListener('dragleave',()=>{card.style.transform=''});
+    card.addEventListener('drop',e=>{
+      e.preventDefault();card.style.transform='';
+      const dropIdx = parseInt(card.dataset.idx);
+      if(_adminDragIdx===null||_adminDragIdx===dropIdx) return;
+      const data = getData();
+      const [moved] = data.works.splice(_adminDragIdx,1);
+      data.works.splice(dropIdx,0,moved);
+      saveData(data);
+      hideWorkForm();
+      refreshAdminLists();
+      renderWorks(currentFilter,currentSubFilter);
+      toast('순서가 변경되었습니다');
+    });
+  });
 }
 
 function toggleWorkEdit(i,el){
