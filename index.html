@@ -177,8 +177,12 @@ section{padding:120px 40px}
 
 /* Profile Card */
 .profile-card{position:sticky;top:100px;align-self:start}
-.profile-img-wrap{width:100%;aspect-ratio:1;border-radius:4px;overflow:hidden;background:var(--bg3);margin-bottom:24px;border:1px solid var(--bg4)}
-.profile-img-wrap img{width:100%;height:100%;object-fit:cover}
+.profile-img-wrap{width:100%;aspect-ratio:1;border-radius:4px;margin-bottom:24px;perspective:800px;cursor:pointer}
+.profile-flip-inner{position:relative;width:100%;height:100%;transition:transform .8s var(--ease);transform-style:preserve-3d}
+.profile-flip-inner.flipped{transform:rotateY(180deg)}
+.profile-flip-front,.profile-flip-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:4px;overflow:hidden;background:var(--bg3);border:1px solid var(--bg4)}
+.profile-flip-back{transform:rotateY(180deg)}
+.profile-flip-front img,.profile-flip-back img{width:100%;height:100%;object-fit:cover}
 .profile-img-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--text-dark);letter-spacing:2px}
 .profile-name{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px}
 .profile-realname{font-family:var(--font-display);font-size:14px;font-weight:400;color:var(--text-dim);letter-spacing:1px;margin-bottom:16px}
@@ -365,8 +369,15 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
   <div class="career-layout">
     <!-- Profile Card -->
     <div class="profile-card reveal" id="profileCard">
-      <div class="profile-img-wrap">
-        <div class="profile-img-placeholder" id="profileImgArea">No Photo</div>
+      <div class="profile-img-wrap" id="profileFlipWrap" onclick="toggleProfileFlip()">
+        <div class="profile-flip-inner" id="profileFlipInner">
+          <div class="profile-flip-front" id="profileImgFront">
+            <div class="profile-img-placeholder" id="profileImgArea">No Photo</div>
+          </div>
+          <div class="profile-flip-back" id="profileImgBack">
+            <div class="profile-img-placeholder" id="profileImgArea2">No Photo</div>
+          </div>
+        </div>
       </div>
       <div class="profile-name">SOAP</div>
       <div class="profile-realname" id="profileRealname">Hyeonseong Lee</div>
@@ -508,7 +519,7 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
     <div class="admin-section" id="tab-settings">
       <h3 style="font-family:var(--font-display);font-size:18px;font-weight:600;margin-bottom:24px">프로필</h3>
       <div class="admin-form-group">
-        <label>프로필 이미지</label>
+        <label>프로필 이미지 (앞면)</label>
         <div style="display:flex;align-items:center;gap:16px">
           <div id="profilePreview" style="width:80px;height:80px;border-radius:4px;background:var(--bg3);border:1px solid var(--bg4);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">
             <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-dark)">No Photo</span>
@@ -517,6 +528,19 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
             <input type="file" id="profileImgFile" accept="image/*" style="display:none" onchange="handleProfileUpload(event)">
             <button class="admin-btn admin-btn-secondary" onclick="document.getElementById('profileImgFile').click()">이미지 업로드</button>
             <button class="admin-btn admin-btn-danger" onclick="removeProfileImg()" style="margin-left:8px">삭제</button>
+          </div>
+        </div>
+      </div>
+      <div class="admin-form-group">
+        <label>프로필 이미지 (뒷면) — 클릭 시 플립</label>
+        <div style="display:flex;align-items:center;gap:16px">
+          <div id="profilePreview2" style="width:80px;height:80px;border-radius:4px;background:var(--bg3);border:1px solid var(--bg4);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">
+            <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-dark)">No Photo</span>
+          </div>
+          <div style="flex:1">
+            <input type="file" id="profileImgFile2" accept="image/*" style="display:none" onchange="handleProfileUpload2(event)">
+            <button class="admin-btn admin-btn-secondary" onclick="document.getElementById('profileImgFile2').click()">이미지 업로드</button>
+            <button class="admin-btn admin-btn-danger" onclick="removeProfileImg2()" style="margin-left:8px">삭제</button>
           </div>
         </div>
       </div>
@@ -1532,6 +1556,42 @@ function removeProfileImg(){
   applyProfile();
   toast('프로필 이미지가 삭제되었습니다');
 }
+async function handleProfileUpload2(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024){toast('이미지는 2MB 이하만 가능합니다','error');return}
+  if(sb){
+    const name = 'profile2_'+Date.now()+'.'+file.name.split('.').pop();
+    const {error} = await sb.storage.from('port').upload(name,file,{contentType:file.type});
+    if(error){toast('업로드 실패','error');return}
+    const {data:urlData} = sb.storage.from('port').getPublicUrl(name);
+    const data = getData();
+    data.settings.profileImg2 = urlData.publicUrl;
+    saveData(data);
+    updateProfilePreview();
+    applyProfile();
+    toast('뒷면 프로필 이미지가 저장되었습니다');
+  } else {
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      const data = getData();
+      data.settings.profileImg2 = ev.target.result;
+      saveData(data);
+      updateProfilePreview();
+      applyProfile();
+      toast('뒷면 프로필 이미지가 저장되었습니다');
+    };
+    reader.readAsDataURL(file);
+  }
+}
+function removeProfileImg2(){
+  const data = getData();
+  data.settings.profileImg2 = '';
+  saveData(data);
+  updateProfilePreview();
+  applyProfile();
+  toast('뒷면 프로필 이미지가 삭제되었습니다');
+}
 function updateProfilePreview(){
   const data = getData();
   const preview = document.getElementById('profilePreview');
@@ -1539,6 +1599,14 @@ function updateProfilePreview(){
     preview.innerHTML = `<img src="${data.settings.profileImg}" style="width:100%;height:100%;object-fit:cover">`;
   } else {
     preview.innerHTML = '<span style="font-family:var(--font-mono);font-size:9px;color:var(--text-dark)">No Photo</span>';
+  }
+  const preview2 = document.getElementById('profilePreview2');
+  if(preview2){
+    if(data.settings.profileImg2){
+      preview2.innerHTML = `<img src="${data.settings.profileImg2}" style="width:100%;height:100%;object-fit:cover">`;
+    } else {
+      preview2.innerHTML = '<span style="font-family:var(--font-mono);font-size:9px;color:var(--text-dark)">No Photo</span>';
+    }
   }
 }
 function applyProfile(){
@@ -1550,8 +1618,37 @@ function applyProfile(){
   } else {
     area.outerHTML = `<div class="profile-img-placeholder" id="profileImgArea">No Photo</div>`;
   }
+  const area2 = document.getElementById('profileImgArea2');
+  if(s.profileImg2){
+    area2.outerHTML = `<img src="${s.profileImg2}" style="width:100%;height:100%;object-fit:cover" id="profileImgArea2">`;
+  } else {
+    area2.outerHTML = `<div class="profile-img-placeholder" id="profileImgArea2">No Photo</div>`;
+  }
   if(s.profileLocation) document.getElementById('profileLocation').textContent = s.profileLocation;
 }
+
+// Profile Flip
+let profileFlipped = false;
+function toggleProfileFlip(){
+  profileFlipped = !profileFlipped;
+  const inner = document.getElementById('profileFlipInner');
+  if(profileFlipped) inner.classList.add('flipped');
+  else inner.classList.remove('flipped');
+}
+// Auto-flip on scroll into Career section
+let profileAutoFlipDone = false;
+const careerObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting && !profileAutoFlipDone){
+      profileAutoFlipDone = true;
+      const inner = document.getElementById('profileFlipInner');
+      setTimeout(()=>{inner.classList.add('flipped')},300);
+      setTimeout(()=>{inner.classList.remove('flipped');profileFlipped=false},1400);
+    }
+  });
+},{threshold:.3});
+const careerSection = document.getElementById('career');
+if(careerSection) careerObserver.observe(careerSection);
 
 // Settings
 function loadSettingsForm(){
