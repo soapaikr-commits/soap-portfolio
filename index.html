@@ -816,7 +816,7 @@ function renderWorks(filter='all',subFilter='all'){
   const empty = document.getElementById('emptyState');
 
   // 원본 인덱스를 유지하면서 필터링
-  let indexed = data.works.map((w,i)=>({...w,_idx:i}));
+  let indexed = data.works.map((w,i)=>({...w,_idx:i})).filter(w=>!w.hidden);
   if(filter!=='all'){
     indexed = indexed.filter(w=>w.category.startsWith(filter));
     if(subFilter!=='all'){
@@ -1136,7 +1136,7 @@ function refreshAdminLists(){
       const v = parseVideoUrl(w.url);
       const thumb = w.thumb || (v ? getThumbnail(v) : '');
       const vimeoAttr = (!thumb && v && v.type==='vimeo') ? ` data-admin-vimeo="${v.id}"` : '';
-      return `<div class="admin-work-card" style="cursor:pointer;border-radius:4px;overflow:hidden;background:var(--bg3);border:1px solid var(--bg4);transition:border-color .3s" onclick="toggleWorkEdit(${i},this)">
+      return `<div class="admin-work-card" style="cursor:pointer;border-radius:4px;overflow:hidden;background:var(--bg3);border:1px solid var(--bg4);transition:border-color .3s;${w.hidden?'opacity:.4':''}" onclick="toggleWorkEdit(${i},this)">
         <div style="aspect-ratio:16/9;background:var(--bg2);overflow:hidden"${vimeoAttr}>
           ${thumb ? `<img src="${esc(thumb)}" style="width:100%;height:100%;object-fit:cover">` : `<div class="admin-thumb-placeholder" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:10px;color:var(--text-dark)">${esc(w.title)}</div>`}
         </div>
@@ -1220,7 +1220,10 @@ function getWorkFormHtml(title, editId, vals){
         <button class="admin-btn admin-btn-primary" onclick="saveWork()">저장</button>
         <button class="admin-btn admin-btn-secondary" onclick="hideWorkForm()">취소</button>
       </div>
-      ${editId!=='' ? `<button class="admin-btn admin-btn-danger" onclick="deleteWork(${editId})">삭제</button>` : ''}
+      ${editId!=='' ? `<div style="display:flex;gap:8px">
+        <button class="admin-btn admin-btn-secondary" onclick="toggleHideWork(${editId})" id="hideWorkBtn" style="border-color:${v.hidden?'var(--accent)':'var(--text-dark)'};color:${v.hidden?'var(--accent)':'var(--text-dim)'}">${v.hidden?'숨김 해제':'숨기기'}</button>
+        <button class="admin-btn admin-btn-danger" onclick="deleteWork(${editId})">삭제</button>
+      </div>` : ''}
     </div>
   </div>`;
 }
@@ -1509,6 +1512,15 @@ function moveWork(i,dir){
   saveData(data);
   refreshAdminLists();
   renderWorks(currentFilter, currentSubFilter);
+}
+function toggleHideWork(i){
+  const data = getData();
+  data.works[i].hidden = !data.works[i].hidden;
+  saveData(data);
+  hideWorkForm();
+  refreshAdminLists();
+  renderWorks();
+  toast(data.works[i].hidden ? '작업물이 숨겨졌습니다' : '작업물이 공개되었습니다');
 }
 function deleteWork(i){
   if(!confirm('이 작업물을 삭제하시겠습니까?')) return;
