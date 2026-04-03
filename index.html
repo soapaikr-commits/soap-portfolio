@@ -114,7 +114,7 @@ section{padding:120px 40px}
 /* —— WORK/PORTFOLIO —— */
 #works{background:var(--bg)}
 .filter-bar{display:flex;justify-content:center;gap:8px;margin-bottom:60px;flex-wrap:wrap}
-.filter-btn{background:none;border:1px solid var(--bg4);padding:8px 24px;font-family:var(--font-mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);cursor:pointer;transition:all .3s}
+.filter-btn{background:none;border:1px solid var(--bg4);padding:14px 48px;font-family:var(--font-mono);font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--text-dim);cursor:pointer;transition:all .3s}
 .filter-btn:hover,.filter-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
 .sub-filter-bar .filter-btn{border:none;padding:6px 16px;font-size:9px;letter-spacing:2px;color:var(--text-dark)}
 .sub-filter-bar .filter-btn:hover,.sub-filter-bar .filter-btn.active{border:none;background:none;color:var(--accent)}
@@ -347,9 +347,8 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
     <div class="section-line"></div>
   </div>
   <div class="filter-bar reveal" id="filterBar">
-    <button class="filter-btn active" data-filter="all">All</button>
-    <button class="filter-btn" data-filter="film">Film</button>
-    <button class="filter-btn" data-filter="ai">AI</button>
+    <button class="filter-btn active" data-filter="film">Film</button>
+    <button class="filter-btn" data-filter="ai">AI Film</button>
   </div>
   <div class="filter-bar sub-filter-bar" id="subFilterBar" style="display:none;margin-top:-40px;margin-bottom:60px">
   </div>
@@ -810,7 +809,7 @@ const AI_SUBS = {'ai-commercial':'Commercial','ai-beauty':'Beauty & Fashion','ai
 function getMainCat(cat){ return cat.startsWith('film')?'Film':'AI' }
 function getSubLabel(cat){ return CAT_LABELS[cat]||cat }
 
-let currentFilter = 'all';
+let currentFilter = 'film';
 let currentSubFilter = 'all';
 
 function updateSubFilterBar(mainFilter){
@@ -1750,7 +1749,8 @@ function toast(msg,type='success'){
 }
 
 // —— INIT ——
-renderWorks();
+renderWorks(currentFilter, currentSubFilter);
+updateSubFilterBar(currentFilter);
 renderCareer();
 applySettings();
 applyProfile();
