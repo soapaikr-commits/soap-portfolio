@@ -291,6 +291,45 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
 /* —— SCROLL ANIMATIONS —— */
 .reveal{opacity:0;transform:translateY(40px);transition:all .8s var(--ease)}
 .reveal.visible{opacity:1;transform:translateY(0)}
+
+/* —— MOBILE OPTIMIZATION —— */
+@media(max-width:768px){
+  /* Filter buttons */
+  .filter-btn{padding:24px 0;font-size:clamp(18px,5vw,28px);letter-spacing:4px}
+  .sub-filter-bar{flex-wrap:wrap;justify-content:center;gap:8px!important;margin-top:-24px!important;margin-bottom:36px!important}
+  .sub-filter-bar .filter-btn{padding:8px 16px;font-size:10px;letter-spacing:2px}
+  /* Modal */
+  .modal-inner{width:95%}
+  .modal-info{padding:20px 16px}
+  .modal-info-header{flex-direction:column;gap:4px}
+  .modal-info-title{font-size:18px}
+  .modal-bts-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}
+  .modal-credits{grid-template-columns:1fr 1fr}
+  .modal-close{top:12px;right:16px}
+  /* Footer */
+  footer{padding:40px 24px 32px}
+  .footer-biz{grid-template-columns:1fr;gap:6px}
+  .footer-biz-row span:first-child{min-width:80px}
+  /* Toast */
+  .toast{left:16px;right:16px;bottom:16px;text-align:center}
+  /* Contact */
+  .contact-social{gap:20px;flex-wrap:wrap}
+  .contact-phone{flex-direction:column;gap:8px}
+  /* Profile card on mobile - center align */
+  .profile-card{text-align:center}
+  .profile-tags{justify-content:center}
+  .profile-meta{align-items:center}
+  /* Hero sub spacing */
+  .hero-sub{letter-spacing:3px;font-size:12px}
+}
+@media(max-width:480px){
+  .filter-btn{padding:18px 0;font-size:16px;letter-spacing:2px}
+  .modal-credits{grid-template-columns:1fr}
+  .contact-email{word-break:break-all}
+  .admin-panel{padding:80px 16px 40px}
+  .admin-tabs{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
+  .admin-tab{white-space:nowrap;padding:10px 16px;font-size:10px;letter-spacing:2px}
+}
 </style>
 </head>
 <body>
