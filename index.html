@@ -1709,8 +1709,11 @@ function renderProfileInfoAdmin(){
   if(!items.length){list.innerHTML='<div style="font-size:11px;color:var(--text-dark)">등록된 정보가 없습니다</div>';return}
   list.innerHTML = items.map((item,i)=>
     `<div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg3);border-radius:4px;margin-bottom:6px">
-      <span style="font-size:9px;color:var(--accent);font-family:var(--font-mono)">${item.type==='award'?'수상':'경력'}</span>
-      <span style="flex:1;font-size:12px">${item.text}</span>
+      <select onchange="updateProfileInfo(${i},'type',this.value)" style="width:56px;padding:4px;background:var(--bg2);border:1px solid var(--bg4);color:var(--accent);border-radius:3px;font-family:var(--font-mono);font-size:9px">
+        <option value="role"${item.type==='role'?' selected':''}>경력</option>
+        <option value="award"${item.type==='award'?' selected':''}>수상</option>
+      </select>
+      <input type="text" value="${item.text.replace(/"/g,'&quot;')}" onchange="updateProfileInfo(${i},'text',this.value)" style="flex:1;padding:4px 8px;background:var(--bg2);border:1px solid var(--bg4);color:var(--text);border-radius:3px;font-size:12px">
       <button class="admin-btn admin-btn-danger" onclick="removeProfileInfo(${i})" style="padding:4px 8px;font-size:9px">삭제</button>
     </div>`
   ).join('');
@@ -1727,6 +1730,13 @@ function addProfileInfo(){
   renderProfileInfoAdmin();
   applyProfile();
   toast('프로필 정보가 추가되었습니다');
+}
+function updateProfileInfo(idx,field,value){
+  const data = getData();
+  data.settings.profileInfo[idx][field] = value;
+  saveData(data);
+  applyProfile();
+  toast('수정되었습니다');
 }
 function removeProfileInfo(idx){
   const data = getData();
