@@ -191,6 +191,12 @@ section{padding:120px 40px}
 .profile-meta{list-style:none;padding:0;margin:0 0 20px;display:flex;flex-direction:column;gap:8px}
 .profile-meta li{font-family:var(--font-mono);font-size:10px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;display:flex;gap:8px}
 .profile-meta li span{color:var(--text)}
+.profile-info-section{border-top:1px solid var(--bg4);border-bottom:1px solid var(--bg4);padding:16px 0;margin-bottom:20px;display:flex;flex-direction:column;gap:10px}
+.profile-info-section:empty{display:none}
+.profile-info-item{font-family:var(--font-mono);font-size:10px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.profile-info-item::before{content:'◆';color:var(--accent);font-size:7px}
+.profile-info-item.award::before{content:'';display:inline-block;width:12px;height:12px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a8ff00' stroke-width='2'%3E%3Ccircle cx='12' cy='8' r='6'/%3E%3Cpath d='M9 14l-3 8h12l-3-8'/%3E%3C/svg%3E") center/contain no-repeat;flex-shrink:0}
+.profile-info-item.award{color:var(--text)}
 .profile-tags{display:flex;flex-wrap:wrap;gap:6px}
 .profile-tag{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);border:1px solid rgba(168,255,0,.2);padding:4px 10px;border-radius:2px}
 
@@ -424,6 +430,7 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
       <ul class="profile-meta" id="profileMeta">
         <li>Based in <span id="profileLocation">—</span></li>
       </ul>
+      <div class="profile-info-section" id="profileInfoSection"></div>
       <div class="profile-tags">
         <span class="profile-tag">Director</span>
         <span class="profile-tag">Cinematographer</span>
@@ -591,6 +598,24 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
       <div class="admin-form-group">
         <label>거주지</label>
         <input type="text" id="setProfileLocation" placeholder="Seoul">
+      </div>
+      <div style="border-top:1px solid var(--bg4);margin:24px 0;padding-top:24px">
+        <h3 style="font-family:var(--font-display);font-size:16px;font-weight:600;margin-bottom:16px">프로필 정보 (경력/수상)</h3>
+        <div id="profileInfoList" style="margin-bottom:16px"></div>
+        <div style="display:flex;gap:8px;align-items:end">
+          <div style="flex:1">
+            <label style="font-size:11px">내용</label>
+            <input type="text" id="profileInfoText" placeholder="스튜디오 슉 대표">
+          </div>
+          <div style="width:120px">
+            <label style="font-size:11px">유형</label>
+            <select id="profileInfoType" style="width:100%;padding:8px;background:var(--bg3);border:1px solid var(--bg4);color:var(--text);border-radius:4px;font-family:var(--font-mono);font-size:11px">
+              <option value="role">경력</option>
+              <option value="award">수상</option>
+            </select>
+          </div>
+          <button class="admin-btn admin-btn-primary" onclick="addProfileInfo()" style="white-space:nowrap">추가</button>
+        </div>
       </div>
       <div style="border-top:1px solid var(--bg4);margin:32px 0;padding-top:32px">
         <h3 style="font-family:var(--font-display);font-size:18px;font-weight:600;margin-bottom:24px">사이트 설정</h3>
@@ -1665,6 +1690,51 @@ function applyProfile(){
     area2.outerHTML = `<div class="profile-img-placeholder" id="profileImgArea2">No Photo</div>`;
   }
   if(s.profileLocation) document.getElementById('profileLocation').textContent = s.profileLocation;
+  renderProfileInfo();
+}
+
+// Profile Info (roles & awards)
+function renderProfileInfo(){
+  const data = getData();
+  const items = data.settings.profileInfo || [];
+  const section = document.getElementById('profileInfoSection');
+  section.innerHTML = items.map(item =>
+    `<div class="profile-info-item ${item.type==='award'?'award':''}">${item.text}</div>`
+  ).join('');
+}
+function renderProfileInfoAdmin(){
+  const data = getData();
+  const items = data.settings.profileInfo || [];
+  const list = document.getElementById('profileInfoList');
+  if(!items.length){list.innerHTML='<div style="font-size:11px;color:var(--text-dark)">등록된 정보가 없습니다</div>';return}
+  list.innerHTML = items.map((item,i)=>
+    `<div style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg3);border-radius:4px;margin-bottom:6px">
+      <span style="font-size:9px;color:var(--accent);font-family:var(--font-mono)">${item.type==='award'?'수상':'경력'}</span>
+      <span style="flex:1;font-size:12px">${item.text}</span>
+      <button class="admin-btn admin-btn-danger" onclick="removeProfileInfo(${i})" style="padding:4px 8px;font-size:9px">삭제</button>
+    </div>`
+  ).join('');
+}
+function addProfileInfo(){
+  const text = document.getElementById('profileInfoText').value.trim();
+  if(!text){toast('내용을 입력해주세요','error');return}
+  const type = document.getElementById('profileInfoType').value;
+  const data = getData();
+  if(!data.settings.profileInfo) data.settings.profileInfo = [];
+  data.settings.profileInfo.push({text, type});
+  saveData(data);
+  document.getElementById('profileInfoText').value = '';
+  renderProfileInfoAdmin();
+  applyProfile();
+  toast('프로필 정보가 추가되었습니다');
+}
+function removeProfileInfo(idx){
+  const data = getData();
+  data.settings.profileInfo.splice(idx,1);
+  saveData(data);
+  renderProfileInfoAdmin();
+  applyProfile();
+  toast('프로필 정보가 삭제되었습니다');
 }
 
 // Profile Flip
@@ -1696,6 +1766,7 @@ function loadSettingsForm(){
   document.getElementById('setProfileBirth').value = s.profileBirth||'';
   document.getElementById('setProfileLocation').value = s.profileLocation||'';
   updateProfilePreview();
+  renderProfileInfoAdmin();
   document.getElementById('setHeroVideo').value = s.heroVideo||'';
   document.getElementById('setHeroTitle').value = (s.heroTitle||'').replace(/<[^>]*>/g,'');
   document.getElementById('setHeroSub').value = s.heroSub||'';
