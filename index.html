@@ -388,8 +388,8 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
     <div class="section-line"></div>
   </div>
   <div class="filter-bar reveal" id="filterBar">
-    <button class="filter-btn active" data-filter="film">Film</button>
-    <button class="filter-btn" data-filter="ai">AI Film</button>
+    <button class="filter-btn active" data-filter="ai">AI Film</button>
+    <button class="filter-btn" data-filter="film">Film</button>
   </div>
   <div class="filter-bar sub-filter-bar" id="subFilterBar" style="display:none;margin-top:-40px;margin-bottom:60px">
   </div>
@@ -850,7 +850,7 @@ const AI_SUBS = {'ai-commercial':'Commercial','ai-beauty':'Beauty & Fashion','ai
 function getMainCat(cat){ return cat.startsWith('film')?'Film':'AI' }
 function getSubLabel(cat){ return CAT_LABELS[cat]||cat }
 
-let currentFilter = 'film';
+let currentFilter = 'ai';
 let currentSubFilter = 'all';
 
 function updateSubFilterBar(mainFilter){
