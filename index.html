@@ -271,6 +271,9 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
 .admin-btn-secondary:hover{background:var(--text-dark);color:var(--text)}
 
 .admin-list-item{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--bg3);border:1px solid var(--bg4);margin-bottom:8px;border-radius:2px;transition:border-color .3s}
+.admin-filter-btn{background:none;border:1px solid var(--bg4);padding:6px 14px;font-family:var(--font-mono);font-size:10px;letter-spacing:1px;color:var(--text-dim);cursor:pointer;border-radius:3px;transition:all .25s}
+.admin-filter-btn:hover{border-color:var(--text-dark);color:var(--text)}
+.admin-filter-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(168,255,0,.08)}
 .admin-list-item:hover{border-color:var(--text-dark)}
 .admin-list-info h4{font-family:var(--font-display);font-size:16px;font-weight:600;margin-bottom:2px}
 .admin-list-info span{font-family:var(--font-mono);font-size:10px;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase}
@@ -526,6 +529,17 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
         <button class="admin-btn admin-btn-primary" onclick="showWorkForm()">+ 새 작업물</button>
       </div>
       <div id="newWorkForm" style="display:none"></div>
+      <div class="admin-filter-bar" id="adminFilterBar" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="admin-filter-btn active" data-adm-filter="all" data-adm-sub="all" onclick="setAdminFilter('all','all')">전체</button>
+        <button class="admin-filter-btn" data-adm-filter="ai" data-adm-sub="all" onclick="setAdminFilter('ai','all')">AI Film</button>
+        <button class="admin-filter-btn" data-adm-filter="ai" data-adm-sub="ai-commercial" onclick="setAdminFilter('ai','ai-commercial')">— Commercial</button>
+        <button class="admin-filter-btn" data-adm-filter="ai" data-adm-sub="ai-beauty" onclick="setAdminFilter('ai','ai-beauty')">— Beauty & Fashion</button>
+        <button class="admin-filter-btn" data-adm-filter="ai" data-adm-sub="ai-animation" onclick="setAdminFilter('ai','ai-animation')">— Animation</button>
+        <button class="admin-filter-btn" data-adm-filter="film" data-adm-sub="all" onclick="setAdminFilter('film','all')">Film</button>
+        <button class="admin-filter-btn" data-adm-filter="film" data-adm-sub="film-tvcf" onclick="setAdminFilter('film','film-tvcf')">— TVCF</button>
+        <button class="admin-filter-btn" data-adm-filter="film" data-adm-sub="film-viral" onclick="setAdminFilter('film','film-viral')">— Viral Commercial</button>
+        <button class="admin-filter-btn" data-adm-filter="film" data-adm-sub="film-interview" onclick="setAdminFilter('film','film-interview')">— Interview & Sketch</button>
+      </div>
       <div id="adminWorksList"></div>
     </div>
 
@@ -1203,13 +1217,29 @@ function switchTab(tab,btn){
 }
 
 // Admin Works
+let adminFilter = 'all';
+let adminSubFilter = 'all';
+function setAdminFilter(f,sub){
+  adminFilter = f;
+  adminSubFilter = sub;
+  document.querySelectorAll('.admin-filter-btn').forEach(b=>b.classList.remove('active'));
+  const btn = document.querySelector(`.admin-filter-btn[data-adm-filter="${f}"][data-adm-sub="${sub}"]`);
+  if(btn) btn.classList.add('active');
+  refreshAdminLists();
+}
 function refreshAdminLists(){
   const data = getData();
   const wl = document.getElementById('adminWorksList');
-  if(data.works.length===0){
-    wl.innerHTML='<p style="color:var(--text-dark);font-family:var(--font-mono);font-size:12px">등록된 작업물이 없습니다.</p>';
+  const filteredWorks = data.works.map((w,i)=>({...w,_idx:i})).filter(w=>{
+    if(adminFilter==='all') return true;
+    if(!w.category.startsWith(adminFilter)) return false;
+    if(adminSubFilter!=='all' && w.category!==adminSubFilter) return false;
+    return true;
+  });
+  if(filteredWorks.length===0){
+    wl.innerHTML='<p style="color:var(--text-dark);font-family:var(--font-mono);font-size:12px">'+(data.works.length===0?'등록된 작업물이 없습니다.':'해당 카테고리에 작업물이 없습니다.')+'</p>';
   } else {
-    wl.innerHTML = `<div id="adminWorksGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">${data.works.map((w,i)=>{
+    wl.innerHTML = `<div id="adminWorksGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">${filteredWorks.map((w)=>{const i=w._idx;
       const v = parseVideoUrl(w.url);
       const thumb = w.thumb || (v ? getThumbnail(v) : '');
       const vimeoAttr = (!thumb && v && v.type==='vimeo') ? ` data-admin-vimeo="${v.id}"` : '';
@@ -1225,8 +1255,8 @@ function refreshAdminLists(){
         </div>
       </div>`;
     }).join('')}</div>`;
-    // 드래그 정렬
-    initAdminDrag();
+    // 드래그 정렬 (전체 보기일 때만)
+    if(adminFilter==='all' && adminSubFilter==='all') initAdminDrag();
     // 관리자 그리드 Vimeo 썸네일 비동기 로드
     wl.querySelectorAll('[data-admin-vimeo]').forEach(el=>{
       const id = el.dataset.adminVimeo;
