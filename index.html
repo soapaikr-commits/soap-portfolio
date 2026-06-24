@@ -13,7 +13,6 @@
 <meta name="twitter:title" content="SOAP — Director / Cinematographer / AI Artist">
 <meta name="twitter:description" content="SOAP (이현성) — Director, Cinematographer, AI Artist 포트폴리오.">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -708,17 +707,15 @@ footer{padding:60px 40px 40px;border-top:1px solid var(--bg3)}
 const STORAGE_KEY = 'portfolio_data';
 const ADMIN_PW = '3920';
 
-// —— SUPABASE ——
-const SUPABASE_URL = 'https://nulmxtjbqngukbtvjcpp.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51bG14dGpicW5ndWtidHZqY3BwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NTc5OTcsImV4cCI6MjA5MDQzMzk5N30.Tsum2LDyOwy32I-j0vkERMcqI-hjr3Cis0q1vXQLJSw';
+// —— BACKEND (제거됨) ——
+// Supabase 백엔드 제거. 데이터 소스 = 커밋된 DEFAULT_DATA (로컬 편집은 localStorage). 이미지 업로드는 base64 인라인.
 let sb = null;
-try { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) { console.warn('Supabase init failed:', e); }
 
 // —— HTML ESCAPE ——
 function esc(s){ if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') }
 
 // ▼▼▼ DEFAULT DATA (fallback) ▼▼▼
-const DEFAULT_DATA = {"works":[{"title":"[NEPA] 26SS WHISTLIZER MAX - Ep.01 탄생","category":"ai-commercial","url":"https://www.youtube.com/watch?v=dKy9SEXVfz8","thumb":"","desc":"Client | NEPA\nModel | 안유진 @_yujin_an\nAgency | SM C&C\nProduction | 다이나믹콩콩, 스튜디오 서플러스\n\nAI Production | 크리에이티브 이다\nAI Supervisor | LO.OK J(박준상)\nAI Artist | SOAP(이현성), 강인한\n\nEdit | 편집인\nCG | 지인\nSound | 킹콩"},{"title":"[NEPA] 26SS WHISTLIZER MAX - Ep.02 항쟁","category":"ai-commercial","url":"https://www.youtube.com/watch?v=qi519cEy_T4","thumb":"","desc":"Client | NEPA\nModel | 안유진 @_yujin_an\nAgency | SM C&C\nProduction | 다이나믹콩콩, 스튜디오 서플러스\n\nAI Production | 크리에이티브 이다\nAI Supervisor | LO.OK J(박준상)\nAI Artist | SOAP(이현성), 강인한\n\nEdit | 편집인\nCG | 지인\nSound | 킹콩"},{"title":"[NEPA] 26SS WHISTLIZER MAX - Ep.03 도피","category":"ai-commercial","url":"https://www.youtube.com/watch?v=NaLlkteCU-w","thumb":"","desc":"Client | NEPA\nModel | 안유진 @_yujin_an\nAgency | SM C&C\nProduction | 다이나믹콩콩, 스튜디오 서플러스\n\nAI Production | 크리에이티브 이다\nAI Supervisor | LO.OK J(박준상)\nAI Artist | SOAP(이현성), 강인한\n\nEdit | 편집인\nCG | 지인\nSound | 킹콩"},{"title":"퍼스트 레이서(First racer) | AI Animation","category":"ai-animation","url":"https://www.youtube.com/watch?v=v8BYrTwQLDg","thumb":"","desc":"Director | SOAP(이현성) \nAI Artist | SOAP(이현성)"},{"title":"[MOEV| 한예슬 X 모에브 아누카틴 샴푸","category":"film-tvcf","url":"https://www.youtube.com/watch?v=eaDGZ2gl5qw","thumb":"","desc":"Client | INNOVINEKOREA\nProduction | SQUARE COLOR\n\nExecutive Producer l 김요셉\nProduction Producer | 이은협 조은봄\n\nLine Producer l 김민주 (@_mingzzo_)\nProduction Assistant | 최기철 한동혁\n\nCW | 임미류\nDirector l 박상민(@ssanggguu)\nAssistant Director l 이유나(@24fps__) / 장한욱(@wkdgksdnr)\nStoryboard l 김정운\n\nDirector of Photography l 이현성(@noisy.dp)\n1st l 이진욱\n2nd l 한지성, 김현민\n3rd l 유관열\n\nGaffer l 임만상\n1st l 임준형\n2nd l 김경엽 유동열\n3rd l 이대한 정희욱\n\nKey Grip / Techno Crane Operator l 추동우\nGrip l 김형진 김민섭 안현진 강민성\n\nArt Director l 권용옥(@oggingg)\nArt Team | 이은수 안유원\nLandscape Set DUGURU(@duguru.official)\nProject Manager | 정지욱\nDirecting team | 안광현 이현정 이기연\nSupport Team Project Owner | 이수정\nDesigner | 박은경"},{"title":"ZENU X 유지태 스태비아 단백질 커피믹스","category":"film-tvcf","url":"https://vimeo.com/1005467793?fl=tl&fe=ec","thumb":"","desc":"Client | INNOVINEKOREA\nProduction | SQUARE COLOR\nExecutive Producer l 김요셉 (squarecolor_pro)\nLine Producer l 김민재 이은협\n\nDirector l 박상민\nAssistant Director l 박용준 이유나\nProduction Assistant | 김종석 안중민 김준수 김민주\nStoryboard l 김정운\n\nD.O.P l 이현성(@noisy.dop )\n1st l 이진욱\n2nd l 김용진 한지성\n3rd l 조규정\n\nGaffer l 임만상\n1st l 임준형\n2nd l 김경엽 유진우\n3rd l 정태민 최수빈\n\nKey Grip l 홍성인\nGrip l 김형진 원희재 양명규 \nArt Director l 권용옥\nArt Team | 고은지 정미영 주성원\n\nProduction Sound l 엠아이씨 (이재석 김동표)\nMaking Film | 박현준\n\nModel l 유지태\n\nEdit | 박상민\n2D | 박여진\n3D l FIZZ(@say.fizz )\nSound Supervisor | 이원일\nCleaning / Beauty / Compositing l COMMA(@comma_cg)\n\nD.I | Square Color\nColorist | 김민재 (@squarecolor_post)\nAssistant Colorist | 김요셉\nD.I Producer | 김요셉\nD.I.T | 장현정 장한욱"},{"title":"마산 창원 HIGHENDCITY Brand Film","category":"film-tvcf","url":"https://vimeo.com/917513310?share=copy&fl=sv&fe=ci","thumb":"","desc":"마산 창원 HIGHEND City Brand Film\n\nModel l 조여정\n\nDirector l 박상민\nA.D l 박용준\n\nE.Producer l 김요셉\nL.Producer l 김종석\n\nDOP l 이현성\n\n1st l 이진욱\n2nd l 정채운\n3rd l 최정웅\n\nGaffer l 임만상\n\n1st l 김성준\n2nd l 유동열\n3rd l 박준용\n\nKey Grip l 강민성\n\n2nd l 최대신, 강민철\n\nArt Director l 권용옥\n\nD.i l 김민재(@squarecolor.di )\n\n2D l FIZZ (@say.fizz )"},{"title":"병영 센트럴스테이트 Brand Film","category":"film-tvcf","url":"https://vimeo.com/917514689","thumb":"","desc":"병영 센트럴스테이트 Brand Film\n\nModel l 한다감\n\nDirector l 박상민\nA.D l 박용준\n\nE.Producer l 김요셉\nL.Producer l 김종석\n\nDOP l 이현성\n\nGaffer l 임만상\n\nKey Grip l 홍성인\n\nArt Director l 권용옥\n\nD.i l 김민재(@squarecolor_post )"},{"title":"RODAVE Shampoo Brand Film ver.3","category":"film-viral","url":"https://vimeo.com/917512421?share=copy&fl=sv&fe=ci","thumb":"","desc":"Director l 송영규\nDOP l 이현성\nGaffer l 문광민\nD.i l 김민재\nModel l Mari"},{"title":"RODAVE Shampoo Brand Film ver.2","category":"film-viral","url":"https://vimeo.com/917507518?share=copy&fl=sv&fe=ci","thumb":"","desc":"Director l 송영규\nDOP l 이현성\nGaffer l 문광민\nD.i l 김민재\nModel l Mari"},{"title":"RODAVE Shampoo Brand Film ver.1","category":"film-viral","url":"https://vimeo.com/917497050?share=copy&fl=sv&fe=ci","thumb":"","desc":"Director l 송영규\nDOP l 이현성\nGaffer l 문광민\nD.i l 김민재\nModel l Mari"},{"title":"Peach C X 마시로 ver.1","category":"film-viral","url":"https://vimeo.com/1005465741?share=copy&fl=sv&fe=ci","thumb":"","desc":"Model l 마시로 @official.kep1er\nDirector l 송영규 @no.09_younggyu\nDOP l 이현성\nGaffer l 임만상\nD.i l 김민재(@squarecolor_post"},{"title":"BMW 코리아 미래재단 Brand Film","category":"film-viral","url":"https://www.youtube.com/watch?v=gC0qgVMrY6s","thumb":"","desc":"Client | BMW KOREA\nDirector | 송영규\nDOP | 이현성\nGaffer | 임만상"},{"title":"[SK브로드밴드] Btv 감각적인 거실완성♬ TV테리어!","category":"film-viral","url":"https://www.youtube.com/watch?v=dPHtq-IrPz0","thumb":"","desc":"Client SK브로드밴드\nProduction 크리에이티브 이다 @creative_ida_\nE.Producer 손용수\n\nDirector 이현성(SOAP) @soap.ai_\nAI artist 강인한 @k_in_han , 이현성\nMotion artist 조다리\n\nEdit Post153\n2D Post153\n사운드 음향연구소"},{"title":"[가사의 심리학]  이찬혁의 인생을 바꿔준 노래","category":"film-interview","url":"https://www.youtube.com/watch?v=23go-qK298M","thumb":"","desc":"CLIENT | 아이즈매거진\nCAST | 이찬혁\nPPRODUCTION | 스튜디오 슉\nPRODUCER | 문예은\nEDITOR | 장지은\nFILM DIRECTOR | 이현성"},{"title":"[가사의 심리학]  웨이브투어스의 인생을 바꿔준 노래","category":"film-interview","url":"https://www.youtube.com/watch?v=RDsgRa-YHkQ","thumb":"","desc":"CLIENT | 아이즈매거진\nCAST | WAVE TO EARTH\nPPRODUCTION | 스튜디오 슉\nPRODUCER | 문예은\nEDITOR | 장지은\nFILM DIRECTOR | 이현성"},{"title":"[가사의 심리학]   박재범의 인생을 바꿔준 노래","category":"film-interview","url":"https://www.youtube.com/watch?v=vJ0ROzGbV2M","thumb":"","desc":"CLIENT | 아이즈매거진\nCAST | 박재범\nPPRODUCTION | 스튜디오 슉\nPRODUCER | 문예은\nEDITOR | 장지은\nFILM DIRECTOR | 이현성"},{"title":"프리골프 사업설명회 스케치","category":"film-interview","url":"https://youtu.be/qDwoz0IRqRY","thumb":"","desc":""}],"careers":[{"year":"2020~2021","company":"TVCF / VIRAL","role":"Camerateam 3rd","desc":""},{"year":"2021~2025","company":"TVCF / VIRAL","role":"Camerateam 2nd / DOP","desc":""},{"year":"2025~","company":"CREATIVE IDA","role":"Director / AI Artist / DOP","desc":""}],"settings":{"profileImg":"profile.jpg","profileBirth":"2000.04.01","profileLocation":"Seoul","heroTitle":"SOAP","heroSub":"Cinematographer\n·\nAI Artist","email":"soap.ai.kr@gmail.com","insta":"https://www.instagram.com/track_fblues/","vimeo":"https://vimeo.com/user216073278?fl=pp&fe=sh","youtube":"https://www.youtube.com/@SOAP_KR","phone":"+82 010-4083-3920","bizName":"STUDIO SHUKK (스튜디오 슉)","bizCeo":"이현성","bizNum":"366-03-03820","bizAddr":"서울특별시 중구 충무로 13 1907호"}};
+const DEFAULT_DATA = {"works":[{"title":"듀엘의 썸머 _DEWL’s Summer 2026 S/S","category":"ai-commercial","url":"https://youtu.be/1By8w2ufOS8?si=_4_rQu9AIIC5U88m","thumb":"","desc":"Client | DEWL\nProduction | 크리에이티브 이다\n\nDirector l LO.OK J(박준상)\nE.Producer l @sunny.ssun_\nAl Artist I SOAP(이현성), 강인한, Dari\n\nEdit | LO.OK J(박준상)\n2D l KIM PEARL\nSound | Suhuyn Lee","bts":[]},{"title":"[NEPA] 26SS SUMMER COLLECTION","category":"ai-commercial","url":"https://youtu.be/FBEt-uNjbr0?si=uK1LY5kGy-XcUpcS","thumb":"","desc":"Client | NEPA\nModel | 이준호\nAgency | SM C&C\nProduction | 다이나믹콩콩, 스튜디오 서플러스\n\nAI Production | 크리에이티브 이다\nAI Supervisor | LO.OK J(박준상)\nAI Artist | SOAP(이현성), 강인한\n\nEdit | 편집인\nCG | 지인\nSound | 킹콩","bts":[]},{"bts":[],"url":"https://www.youtube.com/watch?v=NaLlkteCU-w","desc":"Client | NEPA\nModel | 안유진 @_yujin_an\nAgency | SM C&C\nProduction | 다이나믹콩콩, 스튜디오 서플러스\n\nAI Production | 크리에이티브 이다\nAI Supervisor | LO.OK J(박준상)\nAI Artist | SOAP(이현성), 강인한\n\nEdit | 편집인\nCG | 지인\nSound | 킹콩","thumb":"","title":"[NEPA] 26SS WHISTLIZER MAX - Ep.03 도피","hidden":false,"category":"ai-commercial"},{"bts":[],"url":"https://www.youtube.com/watch?v=qi519cEy_T4","desc":"Client | NEPA\nModel | 안유진 @_yujin_an\nAgency | SM C&C\nProduction | 다이나믹콩콩, 스튜디오 서플러스\n\nAI Production | 크리에이티브 이다\nAI Supervisor | LO.OK J(박준상)\nAI Artist | SOAP(이현성), 강인한\n\nEdit | 편집인\nCG | 지인\nSound | 킹콩","thumb":"","title":"[NEPA] 26SS WHISTLIZER MAX - Ep.02 항쟁","hidden":false,"category":"ai-commercial"},{"bts":[],"url":"https://www.youtube.com/watch?v=dKy9SEXVfz8","desc":"Client | NEPA\nModel | 안유진 @_yujin_an\nAgency | SM C&C\nProduction | 다이나믹콩콩, 스튜디오 서플러스\n\nAI Production | 크리에이티브 이다\nAI Supervisor | LO.OK J(박준상)\nAI Artist | SOAP(이현성), 강인한\n\nEdit | 편집인\nCG | 지인\nSound | 킹콩","thumb":"","title":"[NEPA] 26SS WHISTLIZER MAX - Ep.01 탄생","hidden":false,"category":"ai-commercial"},{"bts":[],"url":"https://youtu.be/GLIfujpTR7c","desc":"AI 3D VFX | SOAP(이현성)","thumb":"","title":"[EOA X 장나라] 아직도 겉만 채우고 있나요? 풀텐자","category":"ai-beauty"},{"url":"https://vimeo.com/917513310?share=copy&fl=sv&fe=ci","desc":"마산 창원 HIGHEND City Brand Film\n\nModel l 조여정\n\nDirector l 박상민\nA.D l 박용준\n\nE.Producer l 김요셉\nL.Producer l 김종석\n\nDOP l 이현성\n\n1st l 이진욱\n2nd l 정채운\n3rd l 최정웅\n\nGaffer l 임만상\n\n1st l 김성준\n2nd l 유동열\n3rd l 박준용\n\nKey Grip l 강민성\n\n2nd l 최대신, 강민철\n\nArt Director l 권용옥\n\nD.i l 김민재(@squarecolor.di )\n\n2D l FIZZ (@say.fizz )","thumb":"","title":"마산 창원 HIGHENDCITY Brand Film","category":"film-tvcf"},{"bts":[],"url":"https://www.youtube.com/watch?v=eaDGZ2gl5qw","desc":"Client - INNOVINEKOREA\nProduction - SQUARE COLOR\n\nExecutive Producer - 김요셉\nProduction Producer - 이은협 조은봄\n\nLine Producer - 김민주 (@_mingzzo_)\nProduction Assistant - 최기철 한동혁\n\nCW - 임미류\nDirector - 박상민(@ssanggguu)\nAssistant Director - 이유나(@24fps__) / 장한욱(@wkdgksdnr)\nStoryboard - 김정운\n\nDirector of Photography - 이현성(@noisy.dp)\n1st - 이진욱\n2nd - 한지성, 김현민\n3rd - 유관열\n\nGaffer - 임만상\n1st - 임준형\n2nd - 김경엽 유동열\n3rd - 이대한 정희욱\n\nKey Grip / Techno Crane Operator - 추동우\nGrip - 김형진 김민섭 안현진 강민성\n\nArt Director - 권용옥(@oggingg)\nArt Team - 이은수 안유원\nLandscape Set - DUGURU(@duguru.official)\nProject Manager - 정지욱\nDirecting team - 안광현 이현정 이기연\nSupport Team Project Owner - 이수정\nDesigner - 박은경","thumb":"","title":"[MOEV| 한예슬 X 모에브 아누카틴 샴푸","category":"film-tvcf"},{"url":"https://vimeo.com/917514689","desc":"병영 센트럴스테이트 Brand Film\n\nModel l 한다감\n\nDirector l 박상민\nA.D l 박용준\n\nE.Producer l 김요셉\nL.Producer l 김종석\n\nDOP l 이현성\n\nGaffer l 임만상\n\nKey Grip l 홍성인\n\nArt Director l 권용옥\n\nD.i l 김민재(@squarecolor_post )","thumb":"","title":"병영 센트럴스테이트 Brand Film","category":"film-tvcf"},{"url":"https://vimeo.com/1005467793?fl=tl&fe=ec","desc":"Client | INNOVINEKOREA\nProduction | SQUARE COLOR\nExecutive Producer l 김요셉 (squarecolor_pro)\nLine Producer l 김민재 이은협\n\nDirector l 박상민\nAssistant Director l 박용준 이유나\nProduction Assistant | 김종석 안중민 김준수 김민주\nStoryboard l 김정운\n\nD.O.P l 이현성(@noisy.dop )\n1st l 이진욱\n2nd l 김용진 한지성\n3rd l 조규정\n\nGaffer l 임만상\n1st l 임준형\n2nd l 김경엽 유진우\n3rd l 정태민 최수빈\n\nKey Grip l 홍성인\nGrip l 김형진 원희재 양명규 \nArt Director l 권용옥\nArt Team | 고은지 정미영 주성원\n\nProduction Sound l 엠아이씨 (이재석 김동표)\nMaking Film | 박현준\n\nModel l 유지태\n\nEdit | 박상민\n2D | 박여진\n3D l FIZZ(@say.fizz )\nSound Supervisor | 이원일\nCleaning / Beauty / Compositing l COMMA(@comma_cg)\n\nD.I | Square Color\nColorist | 김민재 (@squarecolor_post)\nAssistant Colorist | 김요셉\nD.I Producer | 김요셉\nD.I.T | 장현정 장한욱","thumb":"","title":"ZENU X 유지태 스태비아 단백질 커피믹스","category":"film-tvcf"},{"url":"https://www.youtube.com/watch?v=v8BYrTwQLDg","desc":"Director | SOAP(이현성) \nAI Artist | SOAP(이현성)","thumb":"","title":"퍼스트 레이서(First racer) | AI Animation","category":"ai-animation"},{"bts":[],"url":"https://www.youtube.com/watch?v=ZdHCLW65cpU&list=RDZdHCLW65cpU&start_radio=1","desc":"ARTIST & VOCALS - 손디아\n\nLYRICS BY - 아로카\n\nCOMPOSED BY - 임현준, 정근솔, 디아티\n\nARRANGED BY - 임현준\n\nEXECUTIVE PRODUCER - 이너보이스\n\nPRODUCTION - 스튜디오 슉\n\nDIRECTOR - 이지연\n\nCO-DIRECTOR - SOAP(이현성)\n\nAI TECHNICAL ARTIST - SOAP(이현성)\n\nEDIT/D.I - SOAP(이현성)","thumb":"","title":"[MV] Sondia - Just as I am(있는 그대로의 나)","category":"ai-animation"},{"bts":[],"url":"https://youtu.be/fqRXZsFIdJY","desc":"Director - SOAP(이현성)\nAI Artist -  SOAP(이현성)\nEDIT/D.I -  SOAP(이현성)","thumb":"","title":"[MV] HOLLOW(공허함)","category":"ai-animation"},{"bts":[],"url":"https://youtu.be/hJUZRuk17cY","desc":"","thumb":"","title":"[MV] Santa's Secret Delivery(산타의 은밀한 새벽배송)","category":"ai-animation"},{"bts":[],"url":"https://www.youtube.com/watch?v=dPHtq-IrPz0","desc":"Client - SK브로드밴드\nProduction - 크리에이티브 이다 @creative_ida_\nE.Producer - 손용수\n\nDirector - SOAP(이현성)\nAI artist - 강인한 @k_in_han , SOAP(이현성)\nMotion artist - 조다리\n\nEdit - Post153\n2D - Post153\n사운드 - 음향연구소","thumb":"","title":"[SK브로드밴드] Btv 감각적인 거실완성♬ TV테리어!","category":"ai-commercial"},{"bts":[],"url":"https://youtube.com/shorts/47ERmwNDH38","desc":"AI 2D VFX - SOAP(이현성)","thumb":"","title":"TOUCH IN SOL - 무신사","category":"ai-beauty"},{"bts":[],"url":"https://youtu.be/wzSSjMY_bMI?si=k5pEeX_H_q819o4h","desc":"CLIENT | 아이즈매거진\nCAST | 박효신, 김이나\nPPRODUCTION | 스튜디오 슉\nPRODUCER | 문예은\nEDITOR | 장지은\nFILM DIRECTOR | 이현성\nCAMERA CREW - 신승용, 임승민\nLIGHTING CREW -  임만상, 구본학, 정경호\nD.I - SQUARE COLOR","thumb":"","title":"[가사의 심리학] 박효신의 인생을 바꿔준 노래","category":"film-interview"},{"url":"https://www.youtube.com/watch?v=vJ0ROzGbV2M","desc":"CLIENT | 아이즈매거진\nCAST | 박재범\nPPRODUCTION | 스튜디오 슉\nPRODUCER | 문예은\nEDITOR | 장지은\nFILM DIRECTOR | 이현성","thumb":"","title":"[가사의 심리학]   박재범의 인생을 바꿔준 노래","category":"film-interview"},{"url":"https://www.youtube.com/watch?v=23go-qK298M","desc":"CLIENT | 아이즈매거진\nCAST | 이찬혁\nPPRODUCTION | 스튜디오 슉\nPRODUCER | 문예은\nEDITOR | 장지은\nFILM DIRECTOR | 이현성","thumb":"","title":"[가사의 심리학]  이찬혁의 인생을 바꿔준 노래","category":"film-interview"},{"url":"https://www.youtube.com/watch?v=RDsgRa-YHkQ","desc":"CLIENT | 아이즈매거진\nCAST | WAVE TO EARTH\nPPRODUCTION | 스튜디오 슉\nPRODUCER | 문예은\nEDITOR | 장지은\nFILM DIRECTOR | 이현성","thumb":"","title":"[가사의 심리학]  웨이브투어스의 인생을 바꿔준 노래","category":"film-interview"},{"bts":[],"url":"https://www.youtube.com/watch?v=-0PNPxa87ZY","desc":"CLIENT | 아이즈매거진\nCAST | 이찬혁\nPPRODUCTION | 스튜디오 슉\nPRODUCER | 문예은\nEDITOR | 장지은\nFILM DIRECTOR | 이현성","thumb":"","title":"[가사의 심리학] 볼빨간사춘기의 인생을 바꿔준 노래","category":"film-interview"},{"bts":[],"url":"https://youtu.be/WxNsIjYHULA?si=TlpiHwKkrS4Z1jez","desc":"CLIENT | 아이즈매거진\nCAST | 박재범\nPPRODUCTION | 스튜디오 슉\nPRODUCER | 문예은\nEDITOR | 장지은\nFILM DIRECTOR | 이현성","thumb":"","title":"[가사의 심리학] 홍태준의 인생을 바꿔준 노래","category":"film-interview"},{"url":"https://vimeo.com/917512421?share=copy&fl=sv&fe=ci","desc":"Director l 송영규\nDOP l 이현성\nGaffer l 문광민\nD.i l 김민재\nModel l Mari","thumb":"","title":"RODAVE Shampoo Brand Film ver.3","category":"film-viral"},{"url":"https://vimeo.com/917507518?share=copy&fl=sv&fe=ci","desc":"Director l 송영규\nDOP l 이현성\nGaffer l 문광민\nD.i l 김민재\nModel l Mari","thumb":"","title":"RODAVE Shampoo Brand Film ver.2","category":"film-viral"},{"url":"https://vimeo.com/917497050?share=copy&fl=sv&fe=ci","desc":"Director l 송영규\nDOP l 이현성\nGaffer l 문광민\nD.i l 김민재\nModel l Mari","thumb":"","title":"RODAVE Shampoo Brand Film ver.1","category":"film-viral"},{"url":"https://vimeo.com/1005465741?share=copy&fl=sv&fe=ci","desc":"Model l 마시로 @official.kep1er\nDirector l 송영규 @no.09_younggyu\nDOP l 이현성\nGaffer l 임만상\nD.i l 김민재(@squarecolor_post","thumb":"","title":"Peach C X 마시로 ver.1","category":"film-viral"},{"url":"https://www.youtube.com/watch?v=gC0qgVMrY6s","desc":"Client | BMW KOREA\nDirector | 송영규\nDOP | 이현성\nGaffer | 임만상","thumb":"","title":"BMW 코리아 미래재단 Brand Film","category":"film-viral"},{"url":"https://youtu.be/qDwoz0IRqRY","desc":"","thumb":"","title":"프리골프 사업설명회 스케치","category":"film-interview"}],"careers":[{"desc":"","role":"Camerateam 3rd","year":"2020~2021","company":"TVCF / MV / VIRAL"},{"desc":"","role":"Camerateam 2nd / DOP","year":"2021~2025","company":"TVCF / MV / VIRAL"},{"desc":"","role":"Director / AI Artist / DOP","year":"2026~","company":"CREATIVE IDA"}],"settings":{"email":"soap.ai.kr@gmail.com","insta":"https://www.instagram.com/track_fblues/","phone":"+82 010-4083-3920","vimeo":"https://vimeo.com/user216073278?fl=pp&fe=sh","bizCeo":"이현성","bizNum":"366-03-03820","bizAddr":"서울특별시 중구 충무로 13 1907호","bizName":"STUDIO SHUKK (스튜디오 슉)","heroSub":"Cinematographer·AI Artist","youtube":"https://www.youtube.com/@SOAP_KR","heroTitle":"SOAP","heroVideo":"","profileImg":"profile.jpg","profileImg2":"profile.jpg","profileInfo":[{"text":"스튜디오슉 대표","type":"role"},{"text":"패스트캠퍼스 AI 마스터클래스 강사","type":"role"}],"profileBirth":"","profileLocation":"Seoul"},"version":2};
 // ▲▲▲ DEFAULT DATA ▲▲▲
 
 let _cachedData = null;
@@ -726,35 +723,21 @@ let _cachedData = null;
 function getData(){
   if(_cachedData) return JSON.parse(JSON.stringify(_cachedData));
   const d = localStorage.getItem(STORAGE_KEY);
-  if(d) return JSON.parse(d);
+  if(d){
+    try{
+      const parsed = JSON.parse(d);
+      // 버전 일치 시에만 로컬 데이터 사용 — 배포된 DEFAULT_DATA 가 버전업되면 낡은 캐시 자동 무효화
+      if(parsed && parsed.version === DEFAULT_DATA.version) return parsed;
+    }catch(e){}
+  }
   if(DEFAULT_DATA) return JSON.parse(JSON.stringify(DEFAULT_DATA));
   return { works:[], careers:[], settings:{heroTitle:'SOAP',heroSub:'Cinematographer\n·\nAI Artist',email:'',insta:'',vimeo:'',youtube:''} };
 }
 
 function saveData(d){
+  d.version = DEFAULT_DATA.version;   // 저장 시 항상 현재 버전 스탬프 → 버전 게이트 통과
   _cachedData = JSON.parse(JSON.stringify(d));
   localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
-  if(sb){
-    sb.from('portfolio_data')
-      .update({ data: d, updated_at: new Date().toISOString() })
-      .eq('id', 1)
-      .then(({ error }) => {
-        if(error){ console.error('Supabase save failed:', error); toast('서버 저장 실패 — 로컬에만 저장됨','error'); }
-      });
-  }
-}
-
-async function loadFromSupabase(){
-  if(!sb) return;
-  try {
-    const { data, error } = await sb.from('portfolio_data').select('data').eq('id', 1).single();
-    if(error) throw error;
-    if(data && data.data){
-      _cachedData = data.data;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(_cachedData));
-      renderWorks(); renderCareer(); applySettings(); applyProfile();
-    }
-  } catch(e){ console.warn('Supabase load failed, using local data:', e); }
 }
 
 // —— LOADER ——
@@ -1355,45 +1338,35 @@ function hideWorkForm(){
   _pendingBts = [];
 }
 
-async function uploadThumb(e){
+function uploadThumb(e){
   const file = e.target.files[0];
   if(!file) return;
-  if(!sb){toast('Supabase 연결 필요','error');return}
+  if(file.size > 2*1024*1024){toast('이미지는 2MB 이하만 가능합니다','error');e.target.value='';return}
   const btn = document.getElementById('thumbUploadBtn');
   const status = document.getElementById('thumbStatus');
-  btn.disabled=true; status.textContent='업로드 중...';
-  const name = 'thumb_'+Date.now()+'_'+Math.random().toString(36).slice(2,6)+'.'+file.name.split('.').pop();
-  const {error} = await sb.storage.from('port').upload(name,file,{contentType:file.type});
-  if(error){toast('업로드 실패: '+file.name,'error');btn.disabled=false;status.textContent='';return}
-  const {data:urlData} = sb.storage.from('port').getPublicUrl(name);
-  document.getElementById('workThumb').value = urlData.publicUrl;
-  document.getElementById('thumbPreview').innerHTML = `<img src="${esc(urlData.publicUrl)}" style="width:120px;aspect-ratio:16/9;object-fit:cover;border-radius:4px;border:1px solid var(--bg4)">`;
-  btn.disabled=false; status.textContent='';
+  btn.disabled=true; status.textContent='처리 중...';
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    const dataUrl = ev.target.result;   // base64 인라인 (백엔드 없음)
+    document.getElementById('workThumb').value = dataUrl;
+    document.getElementById('thumbPreview').innerHTML = `<img src="${dataUrl}" style="width:120px;aspect-ratio:16/9;object-fit:cover;border-radius:4px;border:1px solid var(--bg4)">`;
+    btn.disabled=false; status.textContent='';
+    toast('썸네일이 추가되었습니다');
+  };
+  reader.readAsDataURL(file);
   e.target.value='';
-  toast('썸네일이 업로드되었습니다');
 }
 
-async function uploadBts(e){
+function uploadBts(e){
   const files = Array.from(e.target.files);
   if(!files.length) return;
-  if(!sb){toast('Supabase 연결 필요','error');return}
   const status = document.getElementById('btsStatus');
   const btn = document.getElementById('btsUploadBtn');
   btn.disabled = true;
-  for(let i=0;i<files.length;i++){
-    status.textContent = `업로드 중... (${i+1}/${files.length})`;
-    const file = files[i];
-    const name = 'bts_'+Date.now()+'_'+Math.random().toString(36).slice(2,6)+'.'+file.name.split('.').pop();
-    const {error} = await sb.storage.from('port').upload(name,file,{contentType:file.type});
-    if(error){toast('업로드 실패: '+file.name,'error');continue}
-    const {data:urlData} = sb.storage.from('port').getPublicUrl(name);
-    _pendingBts.push(urlData.publicUrl);
-  }
-  status.textContent = '';
-  btn.disabled = false;
-  // Update preview
-  const preview = document.getElementById('btsPreview');
-  if(preview){
+  let done = 0;
+  const renderPreview = ()=>{
+    const preview = document.getElementById('btsPreview');
+    if(!preview) return;
     const editId = document.getElementById('workEditId').value;
     const existing = editId!=='' ? (getData().works[parseInt(editId)].bts||[]) : [];
     const all = [...existing,..._pendingBts];
@@ -1401,7 +1374,18 @@ async function uploadBts(e){
       <img src="${esc(url)}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;border:1px solid var(--bg4)">
       <button onclick="removeBts(${i})" style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:10px;cursor:pointer;line-height:16px;padding:0">&times;</button>
     </div>`).join('');
-  }
+  };
+  files.forEach(file=>{
+    if(file.size > 5*1024*1024){toast('파일이 너무 큽니다 (5MB 초과): '+file.name,'error');done++;if(done===files.length){status.textContent='';btn.disabled=false;renderPreview();}return}
+    const reader = new FileReader();
+    reader.onload = function(ev){
+      _pendingBts.push(ev.target.result);   // base64 인라인 (백엔드 없음)
+      done++;
+      status.textContent = `처리 중... (${done}/${files.length})`;
+      if(done===files.length){ status.textContent=''; btn.disabled=false; renderPreview(); }
+    };
+    reader.readAsDataURL(file);
+  });
   e.target.value='';
 }
 
@@ -1615,33 +1599,20 @@ function deleteCareer(i){
 }
 
 // Profile Image
-async function handleProfileUpload(e){
+function handleProfileUpload(e){
   const file = e.target.files[0];
   if(!file) return;
   if(file.size > 2*1024*1024){toast('이미지는 2MB 이하만 가능합니다','error');return}
-  if(sb){
-    const name = 'profile_'+Date.now()+'.'+file.name.split('.').pop();
-    const {error} = await sb.storage.from('port').upload(name,file,{contentType:file.type});
-    if(error){toast('업로드 실패','error');return}
-    const {data:urlData} = sb.storage.from('port').getPublicUrl(name);
+  const reader = new FileReader();
+  reader.onload = function(ev){
     const data = getData();
-    data.settings.profileImg = urlData.publicUrl;
+    data.settings.profileImg = ev.target.result;   // base64 인라인 (백엔드 없음)
     saveData(data);
     updateProfilePreview();
     applyProfile();
     toast('프로필 이미지가 저장되었습니다');
-  } else {
-    const reader = new FileReader();
-    reader.onload = function(ev){
-      const data = getData();
-      data.settings.profileImg = ev.target.result;
-      saveData(data);
-      updateProfilePreview();
-      applyProfile();
-      toast('프로필 이미지가 저장되었습니다');
-    };
-    reader.readAsDataURL(file);
-  }
+  };
+  reader.readAsDataURL(file);
 }
 function removeProfileImg(){
   const data = getData();
@@ -1651,33 +1622,20 @@ function removeProfileImg(){
   applyProfile();
   toast('프로필 이미지가 삭제되었습니다');
 }
-async function handleProfileUpload2(e){
+function handleProfileUpload2(e){
   const file = e.target.files[0];
   if(!file) return;
   if(file.size > 2*1024*1024){toast('이미지는 2MB 이하만 가능합니다','error');return}
-  if(sb){
-    const name = 'profile2_'+Date.now()+'.'+file.name.split('.').pop();
-    const {error} = await sb.storage.from('port').upload(name,file,{contentType:file.type});
-    if(error){toast('업로드 실패','error');return}
-    const {data:urlData} = sb.storage.from('port').getPublicUrl(name);
+  const reader = new FileReader();
+  reader.onload = function(ev){
     const data = getData();
-    data.settings.profileImg2 = urlData.publicUrl;
+    data.settings.profileImg2 = ev.target.result;   // base64 인라인 (백엔드 없음)
     saveData(data);
     updateProfilePreview();
     applyProfile();
     toast('뒷면 프로필 이미지가 저장되었습니다');
-  } else {
-    const reader = new FileReader();
-    reader.onload = function(ev){
-      const data = getData();
-      data.settings.profileImg2 = ev.target.result;
-      saveData(data);
-      updateProfilePreview();
-      applyProfile();
-      toast('뒷면 프로필 이미지가 저장되었습니다');
-    };
-    reader.readAsDataURL(file);
-  }
+  };
+  reader.readAsDataURL(file);
 }
 function removeProfileImg2(){
   const data = getData();
@@ -1907,7 +1865,6 @@ renderCareer();
 applySettings();
 applyProfile();
 observeAll();
-loadFromSupabase();
 </script>
 </body>
 </html>
